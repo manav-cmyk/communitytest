@@ -1,19 +1,21 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Channel, Post, TopicTag, TypeTag } from '@/types/community';
 import { channels, posts as initialPosts, comments, currentUser } from '@/data/mockData';
 import { ChannelSidebar } from '@/components/community/ChannelSidebar';
 import { ChannelFeed } from '@/components/community/ChannelFeed';
 import { PostDetail } from '@/components/community/PostDetail';
 import { UserHeader } from '@/components/community/UserHeader';
+import { SavedPosts } from '@/components/community/SavedPosts';
 import { cn } from '@/lib/utils';
 
-type View = 'channels' | 'feed' | 'post';
+type View = 'channels' | 'feed' | 'post' | 'saved';
 
 export default function Community() {
   const [view, setView] = useState<View>('channels');
   const [activeChannel, setActiveChannel] = useState<Channel | null>(null);
   const [activePost, setActivePost] = useState<Post | null>(null);
   const [posts, setPosts] = useState(initialPosts);
+  const [previousView, setPreviousView] = useState<View>('channels');
   
   const handleChannelSelect = useCallback((channel: Channel) => {
     setActiveChannel(channel);
@@ -28,12 +30,21 @@ export default function Community() {
   const handleBack = useCallback(() => {
     if (view === 'post') {
       setActivePost(null);
-      setView('feed');
+      setView(previousView === 'saved' ? 'saved' : 'feed');
     } else if (view === 'feed') {
       setActiveChannel(null);
       setView('channels');
+    } else if (view === 'saved') {
+      setView('channels');
     }
+  }, [view, previousView]);
+
+  const handleSavedPostsClick = useCallback(() => {
+    setPreviousView(view);
+    setView('saved');
   }, [view]);
+
+  const savedPostsCount = useMemo(() => posts.filter(p => p.isBookmarked).length, [posts]);
   
   const handlePostLike = useCallback((postId: string) => {
     setPosts(prev => prev.map(p => {
@@ -103,7 +114,11 @@ export default function Community() {
     <div className="min-h-screen bg-background">
       {/* Mobile Layout */}
       <div className="lg:hidden">
-        <UserHeader user={currentUser} />
+        <UserHeader 
+          user={currentUser} 
+          onSavedPostsClick={handleSavedPostsClick}
+          savedPostsCount={savedPostsCount}
+        />
         
         {view === 'channels' && (
           <ChannelSidebar
@@ -136,13 +151,30 @@ export default function Community() {
             onComment={handleNewComment}
           />
         )}
+
+        {view === 'saved' && (
+          <SavedPosts
+            posts={posts}
+            onPostClick={(post) => {
+              setPreviousView('saved');
+              handlePostClick(post);
+            }}
+            onPostLike={handlePostLike}
+            onPostBookmark={handlePostBookmark}
+            onBack={handleBack}
+          />
+        )}
       </div>
       
       {/* Desktop Layout */}
       <div className="hidden lg:flex h-screen">
         {/* Sidebar */}
         <div className="w-80 border-r border-border/50 flex flex-col">
-          <UserHeader user={currentUser} />
+          <UserHeader 
+            user={currentUser} 
+            onSavedPostsClick={handleSavedPostsClick}
+            savedPostsCount={savedPostsCount}
+          />
           <div className="flex-1 overflow-hidden">
             <ChannelSidebar
               channels={channels}
@@ -155,12 +187,23 @@ export default function Community() {
         
         {/* Main Content */}
         <div className="flex-1 flex">
-          {/* Feed */}
+          {/* Feed or Saved Posts */}
           <div className={cn(
             'flex-1 border-r border-border/50',
             view === 'post' ? 'hidden xl:block' : ''
           )}>
-            {activeChannel ? (
+            {view === 'saved' ? (
+              <SavedPosts
+                posts={posts}
+                onPostClick={(post) => {
+                  setPreviousView('saved');
+                  handlePostClick(post);
+                }}
+                onPostLike={handlePostLike}
+                onPostBookmark={handlePostBookmark}
+                onBack={handleBack}
+              />
+            ) : activeChannel ? (
               <ChannelFeed
                 channel={activeChannel}
                 posts={posts}

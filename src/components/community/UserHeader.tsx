@@ -4,9 +4,11 @@ import { Flame, Bell, Bookmark } from 'lucide-react';
 
 interface UserHeaderProps {
   user: User;
+  onSavedPostsClick?: () => void;
+  savedPostsCount?: number;
 }
 
-export function UserHeader({ user }: UserHeaderProps) {
+export function UserHeader({ user, onSavedPostsClick, savedPostsCount = 0 }: UserHeaderProps) {
   return (
     <div className="bg-card border-b border-border/50 p-4">
       <div className="flex items-center justify-between">
@@ -28,8 +30,16 @@ export function UserHeader({ user }: UserHeaderProps) {
         </div>
         
         <div className="flex items-center gap-2">
-          <button className="p-2 rounded-xl hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+          <button 
+            onClick={onSavedPostsClick}
+            className="p-2 rounded-xl hover:bg-muted transition-colors text-muted-foreground hover:text-foreground relative"
+          >
             <Bookmark className="w-5 h-5" />
+            {savedPostsCount > 0 && (
+              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-primary text-primary-foreground text-xs font-medium rounded-full flex items-center justify-center px-1">
+                {savedPostsCount > 99 ? '99+' : savedPostsCount}
+              </span>
+            )}
           </button>
           <button className="p-2 rounded-xl hover:bg-muted transition-colors text-muted-foreground hover:text-foreground relative">
             <Bell className="w-5 h-5" />
