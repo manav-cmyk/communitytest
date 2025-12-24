@@ -14,6 +14,7 @@ interface ChannelFeedProps {
   onPostBookmark: (postId: string) => void;
   onNewPost: (content: string, topicTag: TopicTag, typeTag: TypeTag, images?: string[]) => void;
   onBack: () => void;
+  onAuthorClick?: (authorId: string) => void;
 }
 
 export function ChannelFeed({
@@ -24,6 +25,7 @@ export function ChannelFeed({
   onPostBookmark,
   onNewPost,
   onBack,
+  onAuthorClick,
 }: ChannelFeedProps) {
   const [showComposer, setShowComposer] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -125,6 +127,7 @@ export function ChannelFeed({
             onClick={() => onPostClick(post)}
             onLike={() => onPostLike(post.id)}
             onBookmark={() => onPostBookmark(post.id)}
+            onAuthorClick={onAuthorClick}
           />
         ))}
         

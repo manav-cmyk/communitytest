@@ -13,6 +13,7 @@ interface PostDetailProps {
   onLike: () => void;
   onBookmark: () => void;
   onComment: (content: string) => void;
+  onAuthorClick?: (authorId: string) => void;
 }
 
 export function PostDetail({
@@ -22,6 +23,7 @@ export function PostDetail({
   onLike,
   onBookmark,
   onComment,
+  onAuthorClick,
 }: PostDetailProps) {
   const [newComment, setNewComment] = useState('');
   
@@ -55,18 +57,26 @@ export function PostDetail({
         <article className="p-4 border-b border-border/50">
           {/* Post Header */}
           <div className="flex items-start gap-3 mb-4">
-            <div className={cn(
-              'w-12 h-12 rounded-full flex items-center justify-center text-lg font-semibold',
-              isAdmin 
-                ? 'gradient-traya text-primary-foreground' 
-                : 'bg-accent text-accent-foreground'
-            )}>
+            <button
+              onClick={() => onAuthorClick?.(post.author.id)}
+              className={cn(
+                'w-12 h-12 rounded-full flex items-center justify-center text-lg font-semibold hover:opacity-80 transition-opacity',
+                isAdmin 
+                  ? 'gradient-traya text-primary-foreground' 
+                  : 'bg-accent text-accent-foreground'
+              )}
+            >
               {post.author.name.charAt(0)}
-            </div>
+            </button>
             
             <div className="flex-1">
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-foreground">{post.author.name}</span>
+                <button 
+                  onClick={() => onAuthorClick?.(post.author.id)}
+                  className="font-semibold text-foreground hover:underline"
+                >
+                  {post.author.name}
+                </button>
                 {isAdmin && (
                   <span className="px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full">
                     {post.author.badge || 'Admin'}
@@ -165,7 +175,7 @@ export function PostDetail({
           </h3>
           
           {comments.map(comment => (
-            <CommentCard key={comment.id} comment={comment} />
+            <CommentCard key={comment.id} comment={comment} onAuthorClick={onAuthorClick} />
           ))}
           
           {comments.length === 0 && (
