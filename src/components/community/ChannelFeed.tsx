@@ -4,28 +4,37 @@ import { PostCard } from './PostCard';
 import { PostComposer } from './PostComposer';
 import { FilterBar } from './FilterBar';
 import { cn } from '@/lib/utils';
-import { Plus, Search, ArrowLeft } from 'lucide-react';
+import { Plus, Search, ArrowLeft, Users, LogOut } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface ChannelFeedProps {
   channel: Channel;
   posts: Post[];
+  isJoined: boolean;
   onPostClick: (post: Post) => void;
   onPostLike: (postId: string) => void;
   onPostBookmark: (postId: string) => void;
   onNewPost: (content: string, topicTag: TopicTag, typeTag: TypeTag, images?: string[]) => void;
   onBack: () => void;
   onAuthorClick?: (authorId: string) => void;
+  onMembersClick: () => void;
+  onJoinChannel: () => void;
+  onLeaveChannel: () => void;
 }
 
 export function ChannelFeed({
   channel,
   posts,
+  isJoined,
   onPostClick,
   onPostLike,
   onPostBookmark,
   onNewPost,
   onBack,
   onAuthorClick,
+  onMembersClick,
+  onJoinChannel,
+  onLeaveChannel,
 }: ChannelFeedProps) {
   const [showComposer, setShowComposer] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -85,6 +94,39 @@ export function ChannelFeed({
               </div>
               <p className="text-sm text-muted-foreground">{channel.description}</p>
             </div>
+
+            {/* Members & Join/Leave buttons */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={onMembersClick}
+                className="p-2 rounded-xl hover:bg-muted transition-colors"
+                title="View members"
+              >
+                <Users className="w-5 h-5 text-muted-foreground" />
+              </button>
+              
+              {channel.type === 'topic' && (
+                isJoined ? (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={onLeaveChannel}
+                    className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                  >
+                    <LogOut className="w-4 h-4 mr-1" />
+                    Leave
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    onClick={onJoinChannel}
+                    className="gradient-traya text-primary-foreground"
+                  >
+                    Join
+                  </Button>
+                )
+              )}
+            </div>
           </div>
           
           {/* Search */}
@@ -139,7 +181,7 @@ export function ChannelFeed({
       </div>
       
       {/* FAB */}
-      {!channel.isAdminOnly && (
+      {!channel.isAdminOnly && isJoined && (
         <button
           onClick={() => setShowComposer(true)}
           className={cn(

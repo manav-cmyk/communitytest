@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { Channel, Post, TopicTag, TypeTag, Author } from '@/types/community';
-import { channels, posts as initialPosts, comments, currentUser } from '@/data/mockData';
+import { channels, posts as initialPosts, comments, currentUser, channelMembers } from '@/data/mockData';
 import { ChannelSidebar } from '@/components/community/ChannelSidebar';
 import { ChannelFeed } from '@/components/community/ChannelFeed';
 import { PostDetail } from '@/components/community/PostDetail';
@@ -10,9 +10,11 @@ import { UserProfile } from '@/components/community/UserProfile';
 import { CommunityWelcome } from '@/components/community/CommunityWelcome';
 import { JoinCommunityDialog } from '@/components/community/JoinCommunityDialog';
 import { ExitCommunityDialog } from '@/components/community/ExitCommunityDialog';
+import { JoinChannelDialog } from '@/components/community/JoinChannelDialog';
+import { ChannelMembers } from '@/components/community/ChannelMembers';
 import { cn } from '@/lib/utils';
 
-type View = 'channels' | 'feed' | 'post' | 'saved' | 'profile';
+type View = 'channels' | 'feed' | 'post' | 'saved' | 'profile' | 'members';
 
 export default function Community() {
   const [view, setView] = useState<View>('channels');
@@ -28,6 +30,11 @@ export default function Community() {
   const [showJoinDialog, setShowJoinDialog] = useState(false);
   const [showExitDialog, setShowExitDialog] = useState(false);
   
+  // Per-channel join state (topic channels only)
+  const [joinedChannels, setJoinedChannels] = useState<Set<string>>(new Set());
+  const [showJoinChannelDialog, setShowJoinChannelDialog] = useState(false);
+  const [pendingJoinChannel, setPendingJoinChannel] = useState<Channel | null>(null);
+  
   const handleJoinCommunity = useCallback(() => {
     setIsMember(true);
     setShowJoinDialog(false);
@@ -39,16 +46,50 @@ export default function Community() {
     setActiveChannel(null);
     setActivePost(null);
     setView('channels');
+    setJoinedChannels(new Set());
   }, []);
+
+  const handleJoinChannel = useCallback((channel: Channel) => {
+    setJoinedChannels(prev => new Set([...prev, channel.id]));
+    setShowJoinChannelDialog(false);
+    setPendingJoinChannel(null);
+  }, []);
+
+  const handleLeaveChannel = useCallback((channelId: string) => {
+    setJoinedChannels(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(channelId);
+      return newSet;
+    });
+  }, []);
+
+  const isChannelJoined = useCallback((channel: Channel) => {
+    // Cohort channels are auto-joined
+    if (channel.type === 'cohort') return true;
+    return joinedChannels.has(channel.id);
+  }, [joinedChannels]);
   
   const handleChannelSelect = useCallback((channel: Channel) => {
     if (!isMember) {
       setShowJoinDialog(true);
       return;
     }
+    
+    // For topic channels, show join dialog if not joined
+    if (channel.type === 'topic' && !joinedChannels.has(channel.id)) {
+      setPendingJoinChannel(channel);
+      setShowJoinChannelDialog(true);
+      return;
+    }
+    
     setActiveChannel(channel);
     setView('feed');
-  }, [isMember]);
+  }, [isMember, joinedChannels]);
+
+  const handleMembersClick = useCallback(() => {
+    setPreviousView(view);
+    setView('members');
+  }, [view]);
   
   const handlePostClick = useCallback((post: Post) => {
     setActivePost(post);
@@ -68,7 +109,9 @@ export default function Community() {
     } else if (view === 'profile') {
       setViewingAuthor(null);
       setIsViewingOwnProfile(false);
-      setView(previousView === 'post' ? 'post' : previousView === 'feed' ? 'feed' : 'channels');
+      setView(previousView === 'post' ? 'post' : previousView === 'feed' ? 'feed' : previousView === 'members' ? 'members' : 'channels');
+    } else if (view === 'members') {
+      setView('feed');
     }
   }, [view, previousView]);
 
@@ -91,10 +134,25 @@ export default function Community() {
       return;
     }
     
-    // Find author from posts or comments
+    // Find author from posts, comments, or channel members
     const foundPost = posts.find(p => p.author.id === authorId);
     const foundComment = comments.find(c => c.author.id === authorId);
-    const author = foundPost?.author || foundComment?.author;
+    let author = foundPost?.author || foundComment?.author;
+    
+    // Also check channel members
+    if (!author && activeChannel) {
+      const members = channelMembers[activeChannel.id] || [];
+      const member = members.find(m => m.id === authorId);
+      if (member) {
+        author = {
+          id: member.id,
+          name: member.name,
+          avatar: member.avatar,
+          role: member.role,
+          badge: member.badge,
+        };
+      }
+    }
     
     if (author) {
       setPreviousView(view);
@@ -102,7 +160,7 @@ export default function Community() {
       setIsViewingOwnProfile(false);
       setView('profile');
     }
-  }, [view, posts, handleProfileClick]);
+  }, [view, posts, handleProfileClick, activeChannel]);
 
   const savedPostsCount = useMemo(() => posts.filter(p => p.isBookmarked).length, [posts]);
   
@@ -170,6 +228,10 @@ export default function Community() {
     ? comments.filter(c => c.postId === activePost.id)
     : [];
 
+  const activeChannelMembers = activeChannel 
+    ? channelMembers[activeChannel.id] || []
+    : [];
+
   // Show welcome screen if not a member
   if (!isMember) {
     return (
@@ -197,6 +259,18 @@ export default function Community() {
         onOpenChange={setShowExitDialog}
         onExit={handleExitCommunity}
       />
+      <JoinChannelDialog
+        open={showJoinChannelDialog}
+        onOpenChange={setShowJoinChannelDialog}
+        channel={pendingJoinChannel}
+        onJoin={() => {
+          if (pendingJoinChannel) {
+            handleJoinChannel(pendingJoinChannel);
+            setActiveChannel(pendingJoinChannel);
+            setView('feed');
+          }
+        }}
+      />
 
       {/* Mobile Layout */}
       <div className="lg:hidden">
@@ -214,6 +288,7 @@ export default function Community() {
             onChannelSelect={handleChannelSelect}
             userOrderCount={currentUser.orderCount}
             onExitCommunity={() => setShowExitDialog(true)}
+            joinedChannels={joinedChannels}
           />
         )}
         
@@ -221,12 +296,26 @@ export default function Community() {
           <ChannelFeed
             channel={activeChannel}
             posts={posts}
+            isJoined={isChannelJoined(activeChannel)}
             onPostClick={handlePostClick}
             onPostLike={handlePostLike}
             onPostBookmark={handlePostBookmark}
             onNewPost={handleNewPost}
             onBack={handleBack}
             onAuthorClick={handleAuthorClick}
+            onMembersClick={handleMembersClick}
+            onJoinChannel={() => handleJoinChannel(activeChannel)}
+            onLeaveChannel={() => handleLeaveChannel(activeChannel.id)}
+          />
+        )}
+
+        {view === 'members' && activeChannel && (
+          <ChannelMembers
+            channelName={activeChannel.name}
+            channelIcon={activeChannel.icon}
+            members={activeChannelMembers}
+            onBack={handleBack}
+            onMemberClick={handleAuthorClick}
           />
         )}
         
@@ -284,18 +373,27 @@ export default function Community() {
               onChannelSelect={handleChannelSelect}
               userOrderCount={currentUser.orderCount}
               onExitCommunity={() => setShowExitDialog(true)}
+              joinedChannels={joinedChannels}
             />
           </div>
         </div>
         
         {/* Main Content */}
         <div className="flex-1 flex">
-          {/* Feed, Saved Posts, or Profile */}
+          {/* Feed, Members, Saved Posts, or Profile */}
           <div className={cn(
             'flex-1 border-r border-border/50',
             view === 'post' ? 'hidden xl:block' : ''
           )}>
-            {view === 'profile' ? (
+            {view === 'members' && activeChannel ? (
+              <ChannelMembers
+                channelName={activeChannel.name}
+                channelIcon={activeChannel.icon}
+                members={activeChannelMembers}
+                onBack={handleBack}
+                onMemberClick={handleAuthorClick}
+              />
+            ) : view === 'profile' ? (
               <UserProfile
                 user={isViewingOwnProfile ? currentUser : undefined}
                 author={viewingAuthor || undefined}
@@ -319,12 +417,16 @@ export default function Community() {
               <ChannelFeed
                 channel={activeChannel}
                 posts={posts}
+                isJoined={isChannelJoined(activeChannel)}
                 onPostClick={handlePostClick}
                 onPostLike={handlePostLike}
                 onPostBookmark={handlePostBookmark}
                 onNewPost={handleNewPost}
                 onBack={handleBack}
                 onAuthorClick={handleAuthorClick}
+                onMembersClick={handleMembersClick}
+                onJoinChannel={() => handleJoinChannel(activeChannel)}
+                onLeaveChannel={() => handleLeaveChannel(activeChannel.id)}
               />
             ) : (
               <div className="h-full flex items-center justify-center">

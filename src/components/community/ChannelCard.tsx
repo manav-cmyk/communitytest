@@ -1,14 +1,15 @@
 import { Channel } from '@/types/community';
 import { cn } from '@/lib/utils';
-import { ChevronRight, Users } from 'lucide-react';
+import { ChevronRight, Users, Check } from 'lucide-react';
 
 interface ChannelCardProps {
   channel: Channel;
   isActive?: boolean;
+  isJoined?: boolean;
   onClick: () => void;
 }
 
-export function ChannelCard({ channel, isActive, onClick }: ChannelCardProps) {
+export function ChannelCard({ channel, isActive, isJoined, onClick }: ChannelCardProps) {
   return (
     <button
       onClick={onClick}
@@ -32,6 +33,11 @@ export function ChannelCard({ channel, isActive, onClick }: ChannelCardProps) {
           {channel.unreadCount && channel.unreadCount > 0 && (
             <span className="px-2 py-0.5 text-xs font-medium bg-primary text-primary-foreground rounded-full">
               {channel.unreadCount}
+            </span>
+          )}
+          {isJoined && (
+            <span className="flex items-center gap-0.5 px-1.5 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full">
+              <Check className="w-3 h-3" />
             </span>
           )}
         </div>

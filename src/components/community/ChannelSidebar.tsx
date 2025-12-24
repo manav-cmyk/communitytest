@@ -1,7 +1,7 @@
 import { Channel } from '@/types/community';
 import { ChannelCard } from './ChannelCard';
 import { cn } from '@/lib/utils';
-import { Flame, Hash, Users, ChevronDown, LogOut } from 'lucide-react';
+import { Flame, Users, ChevronDown, LogOut, Check } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 
@@ -11,6 +11,7 @@ interface ChannelSidebarProps {
   onChannelSelect: (channel: Channel) => void;
   userOrderCount: number;
   onExitCommunity: () => void;
+  joinedChannels: Set<string>;
 }
 
 export function ChannelSidebar({ 
@@ -18,7 +19,8 @@ export function ChannelSidebar({
   activeChannelId, 
   onChannelSelect,
   userOrderCount,
-  onExitCommunity 
+  onExitCommunity,
+  joinedChannels 
 }: ChannelSidebarProps) {
   const [topicExpanded, setTopicExpanded] = useState(true);
   
@@ -102,6 +104,7 @@ export function ChannelSidebar({
                 key={channel.id}
                 channel={channel}
                 isActive={activeChannelId === channel.id}
+                isJoined={joinedChannels.has(channel.id)}
                 onClick={() => onChannelSelect(channel)}
               />
             ))}
