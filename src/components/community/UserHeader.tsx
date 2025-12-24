@@ -5,18 +5,22 @@ import { Flame, Bell, Bookmark } from 'lucide-react';
 interface UserHeaderProps {
   user: User;
   onSavedPostsClick?: () => void;
+  onProfileClick?: () => void;
   savedPostsCount?: number;
 }
 
-export function UserHeader({ user, onSavedPostsClick, savedPostsCount = 0 }: UserHeaderProps) {
+export function UserHeader({ user, onSavedPostsClick, onProfileClick, savedPostsCount = 0 }: UserHeaderProps) {
   return (
     <div className="bg-card border-b border-border/50 p-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        <button 
+          onClick={onProfileClick}
+          className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+        >
           <div className="w-10 h-10 rounded-full gradient-traya flex items-center justify-center text-primary-foreground font-semibold">
             {user.name.charAt(0)}
           </div>
-          <div>
+          <div className="text-left">
             <h3 className="font-semibold text-foreground">{user.name}</h3>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <span>Month {user.orderCount}</span>
@@ -27,7 +31,7 @@ export function UserHeader({ user, onSavedPostsClick, savedPostsCount = 0 }: Use
               </span>
             </div>
           </div>
-        </div>
+        </button>
         
         <div className="flex items-center gap-2">
           <button 

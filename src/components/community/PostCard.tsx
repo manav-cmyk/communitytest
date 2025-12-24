@@ -9,13 +9,19 @@ interface PostCardProps {
   onClick: () => void;
   onLike: () => void;
   onBookmark: () => void;
+  onAuthorClick?: (authorId: string) => void;
 }
 
-export function PostCard({ post, onClick, onLike, onBookmark }: PostCardProps) {
+export function PostCard({ post, onClick, onLike, onBookmark, onAuthorClick }: PostCardProps) {
   const topicTag = topicTagLabels[post.topicTag];
   const typeTag = typeTagLabels[post.typeTag];
   
   const isAdmin = post.author.role === 'admin' || post.author.role === 'superadmin';
+
+  const handleAuthorClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onAuthorClick?.(post.author.id);
+  };
   
   return (
     <article 
@@ -24,18 +30,26 @@ export function PostCard({ post, onClick, onLike, onBookmark }: PostCardProps) {
     >
       {/* Header */}
       <div className="flex items-start gap-3 mb-3">
-        <div className={cn(
-          'w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold',
-          isAdmin 
-            ? 'gradient-traya text-primary-foreground' 
-            : 'bg-accent text-accent-foreground'
-        )}>
+        <button
+          onClick={handleAuthorClick}
+          className={cn(
+            'w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold hover:opacity-80 transition-opacity',
+            isAdmin 
+              ? 'gradient-traya text-primary-foreground' 
+              : 'bg-accent text-accent-foreground'
+          )}
+        >
           {post.author.name.charAt(0)}
-        </div>
+        </button>
         
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-foreground">{post.author.name}</span>
+            <button 
+              onClick={handleAuthorClick}
+              className="font-semibold text-foreground hover:underline"
+            >
+              {post.author.name}
+            </button>
             {isAdmin && (
               <span className="px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full">
                 {post.author.badge || 'Admin'}

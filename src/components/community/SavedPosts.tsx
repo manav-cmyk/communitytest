@@ -8,6 +8,7 @@ interface SavedPostsProps {
   onPostLike: (postId: string) => void;
   onPostBookmark: (postId: string) => void;
   onBack: () => void;
+  onAuthorClick?: (authorId: string) => void;
 }
 
 export function SavedPosts({
@@ -16,6 +17,7 @@ export function SavedPosts({
   onPostLike,
   onPostBookmark,
   onBack,
+  onAuthorClick,
 }: SavedPostsProps) {
   const savedPosts = posts.filter(p => p.isBookmarked);
 
@@ -51,6 +53,7 @@ export function SavedPosts({
                 onClick={() => onPostClick(post)}
                 onLike={() => onPostLike(post.id)}
                 onBookmark={() => onPostBookmark(post.id)}
+                onAuthorClick={onAuthorClick}
               />
             ))}
           </div>

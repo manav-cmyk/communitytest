@@ -1,14 +1,15 @@
 import { useState, useCallback, useMemo } from 'react';
-import { Channel, Post, TopicTag, TypeTag } from '@/types/community';
+import { Channel, Post, TopicTag, TypeTag, Author } from '@/types/community';
 import { channels, posts as initialPosts, comments, currentUser } from '@/data/mockData';
 import { ChannelSidebar } from '@/components/community/ChannelSidebar';
 import { ChannelFeed } from '@/components/community/ChannelFeed';
 import { PostDetail } from '@/components/community/PostDetail';
 import { UserHeader } from '@/components/community/UserHeader';
 import { SavedPosts } from '@/components/community/SavedPosts';
+import { UserProfile } from '@/components/community/UserProfile';
 import { cn } from '@/lib/utils';
 
-type View = 'channels' | 'feed' | 'post' | 'saved';
+type View = 'channels' | 'feed' | 'post' | 'saved' | 'profile';
 
 export default function Community() {
   const [view, setView] = useState<View>('channels');
@@ -16,6 +17,8 @@ export default function Community() {
   const [activePost, setActivePost] = useState<Post | null>(null);
   const [posts, setPosts] = useState(initialPosts);
   const [previousView, setPreviousView] = useState<View>('channels');
+  const [viewingAuthor, setViewingAuthor] = useState<Author | null>(null);
+  const [isViewingOwnProfile, setIsViewingOwnProfile] = useState(false);
   
   const handleChannelSelect = useCallback((channel: Channel) => {
     setActiveChannel(channel);
@@ -24,18 +27,23 @@ export default function Community() {
   
   const handlePostClick = useCallback((post: Post) => {
     setActivePost(post);
+    setPreviousView(view);
     setView('post');
-  }, []);
+  }, [view]);
   
   const handleBack = useCallback(() => {
     if (view === 'post') {
       setActivePost(null);
-      setView(previousView === 'saved' ? 'saved' : 'feed');
+      setView(previousView === 'saved' ? 'saved' : previousView === 'profile' ? 'profile' : 'feed');
     } else if (view === 'feed') {
       setActiveChannel(null);
       setView('channels');
     } else if (view === 'saved') {
       setView('channels');
+    } else if (view === 'profile') {
+      setViewingAuthor(null);
+      setIsViewingOwnProfile(false);
+      setView(previousView === 'post' ? 'post' : previousView === 'feed' ? 'feed' : 'channels');
     }
   }, [view, previousView]);
 
@@ -43,6 +51,33 @@ export default function Community() {
     setPreviousView(view);
     setView('saved');
   }, [view]);
+
+  const handleProfileClick = useCallback(() => {
+    setPreviousView(view);
+    setIsViewingOwnProfile(true);
+    setViewingAuthor(null);
+    setView('profile');
+  }, [view]);
+
+  const handleAuthorClick = useCallback((authorId: string) => {
+    // Check if clicking own profile
+    if (authorId === currentUser.id) {
+      handleProfileClick();
+      return;
+    }
+    
+    // Find author from posts or comments
+    const foundPost = posts.find(p => p.author.id === authorId);
+    const foundComment = comments.find(c => c.author.id === authorId);
+    const author = foundPost?.author || foundComment?.author;
+    
+    if (author) {
+      setPreviousView(view);
+      setViewingAuthor(author);
+      setIsViewingOwnProfile(false);
+      setView('profile');
+    }
+  }, [view, posts, handleProfileClick]);
 
   const savedPostsCount = useMemo(() => posts.filter(p => p.isBookmarked).length, [posts]);
   
@@ -117,6 +152,7 @@ export default function Community() {
         <UserHeader 
           user={currentUser} 
           onSavedPostsClick={handleSavedPostsClick}
+          onProfileClick={handleProfileClick}
           savedPostsCount={savedPostsCount}
         />
         
@@ -138,6 +174,7 @@ export default function Community() {
             onPostBookmark={handlePostBookmark}
             onNewPost={handleNewPost}
             onBack={handleBack}
+            onAuthorClick={handleAuthorClick}
           />
         )}
         
@@ -149,6 +186,7 @@ export default function Community() {
             onLike={() => handlePostLike(activePost.id)}
             onBookmark={() => handlePostBookmark(activePost.id)}
             onComment={handleNewComment}
+            onAuthorClick={handleAuthorClick}
           />
         )}
 
@@ -162,6 +200,17 @@ export default function Community() {
             onPostLike={handlePostLike}
             onPostBookmark={handlePostBookmark}
             onBack={handleBack}
+            onAuthorClick={handleAuthorClick}
+          />
+        )}
+
+        {view === 'profile' && (
+          <UserProfile
+            user={isViewingOwnProfile ? currentUser : undefined}
+            author={viewingAuthor || undefined}
+            posts={posts}
+            isCurrentUser={isViewingOwnProfile}
+            onBack={handleBack}
           />
         )}
       </div>
@@ -173,6 +222,7 @@ export default function Community() {
           <UserHeader 
             user={currentUser} 
             onSavedPostsClick={handleSavedPostsClick}
+            onProfileClick={handleProfileClick}
             savedPostsCount={savedPostsCount}
           />
           <div className="flex-1 overflow-hidden">
@@ -187,12 +237,20 @@ export default function Community() {
         
         {/* Main Content */}
         <div className="flex-1 flex">
-          {/* Feed or Saved Posts */}
+          {/* Feed, Saved Posts, or Profile */}
           <div className={cn(
             'flex-1 border-r border-border/50',
             view === 'post' ? 'hidden xl:block' : ''
           )}>
-            {view === 'saved' ? (
+            {view === 'profile' ? (
+              <UserProfile
+                user={isViewingOwnProfile ? currentUser : undefined}
+                author={viewingAuthor || undefined}
+                posts={posts}
+                isCurrentUser={isViewingOwnProfile}
+                onBack={handleBack}
+              />
+            ) : view === 'saved' ? (
               <SavedPosts
                 posts={posts}
                 onPostClick={(post) => {
@@ -202,6 +260,7 @@ export default function Community() {
                 onPostLike={handlePostLike}
                 onPostBookmark={handlePostBookmark}
                 onBack={handleBack}
+                onAuthorClick={handleAuthorClick}
               />
             ) : activeChannel ? (
               <ChannelFeed
@@ -212,6 +271,7 @@ export default function Community() {
                 onPostBookmark={handlePostBookmark}
                 onNewPost={handleNewPost}
                 onBack={handleBack}
+                onAuthorClick={handleAuthorClick}
               />
             ) : (
               <div className="h-full flex items-center justify-center">
@@ -240,6 +300,7 @@ export default function Community() {
                 onLike={() => handlePostLike(activePost.id)}
                 onBookmark={() => handlePostBookmark(activePost.id)}
                 onComment={handleNewComment}
+                onAuthorClick={handleAuthorClick}
               />
             </div>
           )}
