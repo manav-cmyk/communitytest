@@ -266,3 +266,49 @@ export const typeTagLabels: Record<string, { label: string; color: string }> = {
   updates: { label: 'Updates', color: 'bg-accent text-accent-foreground' },
   'admin-posts': { label: 'Admin', color: 'bg-primary text-primary-foreground' },
 };
+
+// Channel members mock data
+export interface ChannelMember {
+  id: string;
+  name: string;
+  avatar?: string;
+  role: 'admin' | 'customer';
+  badge?: string;
+  isModerator?: boolean;
+  joinedAt: Date;
+}
+
+export const channelMembers: Record<string, ChannelMember[]> = {
+  'month-2': [
+    { id: 'admin-1', name: 'Dr. Meera', role: 'admin', badge: 'Hair Expert', isModerator: true, joinedAt: new Date('2024-01-01') },
+    { id: 'admin-2', name: 'Coach Priya', role: 'admin', badge: 'Community Manager', isModerator: true, joinedAt: new Date('2024-01-15') },
+    { id: 'user-2', name: 'Ananya K', role: 'customer', joinedAt: new Date('2024-11-10') },
+    { id: 'user-3', name: 'Deepika M', role: 'customer', joinedAt: new Date('2024-11-05') },
+    { id: 'user-4', name: 'Ritu S', role: 'customer', joinedAt: new Date('2024-11-20') },
+    { id: 'user-1', name: 'Priya Sharma', role: 'customer', joinedAt: new Date('2024-10-15') },
+  ],
+  'minoxidil': [
+    { id: 'admin-1', name: 'Dr. Meera', role: 'admin', badge: 'Hair Expert', isModerator: true, joinedAt: new Date('2024-01-01') },
+    { id: 'user-7', name: 'Neha R', role: 'customer', joinedAt: new Date('2024-09-01') },
+    { id: 'user-8', name: 'Pooja T', role: 'customer', joinedAt: new Date('2024-10-05') },
+  ],
+  'hormones-pcos': [
+    { id: 'admin-3', name: 'Dr. Sneha', role: 'admin', badge: 'PCOS Specialist', isModerator: true, joinedAt: new Date('2024-02-01') },
+    { id: 'user-9', name: 'Meghna S', role: 'customer', joinedAt: new Date('2024-08-15') },
+  ],
+  'nutrition': [
+    { id: 'admin-4', name: 'Nutritionist Ria', role: 'admin', badge: 'Diet Expert', isModerator: true, joinedAt: new Date('2024-03-01') },
+    { id: 'user-10', name: 'Aditi V', role: 'customer', joinedAt: new Date('2024-07-20') },
+  ],
+  'progress': [
+    { id: 'admin-2', name: 'Coach Priya', role: 'admin', badge: 'Community Manager', isModerator: true, joinedAt: new Date('2024-01-15') },
+    { id: 'user-5', name: 'Kavitha R', role: 'customer', joinedAt: new Date('2024-06-10') },
+  ],
+  'results': [
+    { id: 'admin-1', name: 'Dr. Meera', role: 'admin', badge: 'Hair Expert', isModerator: true, joinedAt: new Date('2024-01-01') },
+  ],
+  'yoga-exercise': [
+    { id: 'admin-5', name: 'Coach Arun', role: 'admin', badge: 'Fitness Expert', isModerator: true, joinedAt: new Date('2024-04-01') },
+    { id: 'user-11', name: 'Simran K', role: 'customer', joinedAt: new Date('2024-09-25') },
+  ],
+};
