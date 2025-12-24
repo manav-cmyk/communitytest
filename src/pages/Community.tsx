@@ -7,6 +7,9 @@ import { PostDetail } from '@/components/community/PostDetail';
 import { UserHeader } from '@/components/community/UserHeader';
 import { SavedPosts } from '@/components/community/SavedPosts';
 import { UserProfile } from '@/components/community/UserProfile';
+import { CommunityWelcome } from '@/components/community/CommunityWelcome';
+import { JoinCommunityDialog } from '@/components/community/JoinCommunityDialog';
+import { ExitCommunityDialog } from '@/components/community/ExitCommunityDialog';
 import { cn } from '@/lib/utils';
 
 type View = 'channels' | 'feed' | 'post' | 'saved' | 'profile';
@@ -20,10 +23,32 @@ export default function Community() {
   const [viewingAuthor, setViewingAuthor] = useState<Author | null>(null);
   const [isViewingOwnProfile, setIsViewingOwnProfile] = useState(false);
   
+  // Community membership state
+  const [isMember, setIsMember] = useState(false);
+  const [showJoinDialog, setShowJoinDialog] = useState(false);
+  const [showExitDialog, setShowExitDialog] = useState(false);
+  
+  const handleJoinCommunity = useCallback(() => {
+    setIsMember(true);
+    setShowJoinDialog(false);
+  }, []);
+  
+  const handleExitCommunity = useCallback(() => {
+    setIsMember(false);
+    setShowExitDialog(false);
+    setActiveChannel(null);
+    setActivePost(null);
+    setView('channels');
+  }, []);
+  
   const handleChannelSelect = useCallback((channel: Channel) => {
+    if (!isMember) {
+      setShowJoinDialog(true);
+      return;
+    }
     setActiveChannel(channel);
     setView('feed');
-  }, []);
+  }, [isMember]);
   
   const handlePostClick = useCallback((post: Post) => {
     setActivePost(post);
@@ -144,9 +169,35 @@ export default function Community() {
   const postComments = activePost 
     ? comments.filter(c => c.postId === activePost.id)
     : [];
+
+  // Show welcome screen if not a member
+  if (!isMember) {
+    return (
+      <>
+        <CommunityWelcome onJoin={handleJoinCommunity} />
+        <JoinCommunityDialog 
+          open={showJoinDialog} 
+          onOpenChange={setShowJoinDialog}
+          onJoin={handleJoinCommunity}
+        />
+      </>
+    );
+  }
   
   return (
     <div className="min-h-screen bg-background">
+      {/* Dialogs */}
+      <JoinCommunityDialog 
+        open={showJoinDialog} 
+        onOpenChange={setShowJoinDialog}
+        onJoin={handleJoinCommunity}
+      />
+      <ExitCommunityDialog 
+        open={showExitDialog} 
+        onOpenChange={setShowExitDialog}
+        onExit={handleExitCommunity}
+      />
+
       {/* Mobile Layout */}
       <div className="lg:hidden">
         <UserHeader 
@@ -162,6 +213,7 @@ export default function Community() {
             activeChannelId={activeChannel?.id}
             onChannelSelect={handleChannelSelect}
             userOrderCount={currentUser.orderCount}
+            onExitCommunity={() => setShowExitDialog(true)}
           />
         )}
         
@@ -231,6 +283,7 @@ export default function Community() {
               activeChannelId={activeChannel?.id}
               onChannelSelect={handleChannelSelect}
               userOrderCount={currentUser.orderCount}
+              onExitCommunity={() => setShowExitDialog(true)}
             />
           </div>
         </div>
