@@ -1,6 +1,6 @@
-import { Author, User, Post } from '@/types/community';
+import { Author, User, Post, trustLevelLabels, TrustLevel } from '@/types/community';
 import { cn } from '@/lib/utils';
-import { ArrowLeft, Flame, Calendar, FileText, Shield, Users } from 'lucide-react';
+import { ArrowLeft, Calendar, FileText, Shield, MessageSquare, Heart, Eye } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface UserProfileProps {
@@ -26,6 +26,7 @@ export function UserProfile({
   const role = author?.role || 'customer';
   const badge = author?.badge;
   const isAdmin = role === 'admin' || role === 'superadmin';
+  const trustLevel: TrustLevel = user?.trustLevel ?? author?.trustLevel ?? 1;
   
   const userPosts = posts.filter(p => 
     (user && p.author.id === user.id) || 
@@ -34,8 +35,9 @@ export function UserProfile({
   const postCount = userPosts.length;
   
   const displayMemberSince = user?.joinedAt || memberSince || new Date();
-  const streak = user?.streak || 0;
-  const orderCount = user?.orderCount || 0;
+  const topicsCreated = user?.topicsCreated || postCount;
+  const likesReceived = user?.likesReceived || 0;
+  const daysVisited = user?.daysVisited || 0;
   
   return (
     <div className="flex flex-col h-full bg-background">
@@ -69,16 +71,27 @@ export function UserProfile({
             </div>
             
             <h2 className="text-xl font-bold text-foreground mb-1">{name}</h2>
+            {user?.username && (
+              <p className="text-sm text-muted-foreground mb-2">@{user.username}</p>
+            )}
             
             <div className="flex items-center gap-2 flex-wrap justify-center">
+              {/* Trust Level Badge */}
+              <span className={cn(
+                'px-3 py-1 text-sm font-medium rounded-full flex items-center gap-1',
+                trustLevel >= 3 ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
+              )}>
+                <Shield className="w-3.5 h-3.5" />
+                {trustLevelLabels[trustLevel]}
+              </span>
+              
               {isAdmin && (
-                <span className="px-3 py-1 text-sm font-medium bg-primary/10 text-primary rounded-full">
-                  {badge || 'Admin'}
+                <span className="px-3 py-1 text-sm font-medium bg-primary text-primary-foreground rounded-full">
+                  {badge || 'Staff'}
                 </span>
               )}
               {isModerator && !isAdmin && (
-                <span className="px-3 py-1 text-sm font-medium bg-warning/10 text-warning rounded-full flex items-center gap-1">
-                  <Shield className="w-3.5 h-3.5" />
+                <span className="px-3 py-1 text-sm font-medium bg-warning/10 text-warning rounded-full">
                   Moderator
                 </span>
               )}
@@ -91,7 +104,7 @@ export function UserProfile({
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-2">
                 <Calendar className="w-5 h-5 text-primary" />
               </div>
-              <p className="text-xs text-muted-foreground mb-1">Traya Member Since</p>
+              <p className="text-xs text-muted-foreground mb-1">Member Since</p>
               <p className="font-semibold text-foreground">
                 {format(displayMemberSince, 'MMM yyyy')}
               </p>
@@ -101,26 +114,26 @@ export function UserProfile({
               <div className="w-10 h-10 rounded-xl bg-success/10 flex items-center justify-center mx-auto mb-2">
                 <FileText className="w-5 h-5 text-success" />
               </div>
-              <p className="text-xs text-muted-foreground mb-1">Posts</p>
-              <p className="font-semibold text-foreground">{postCount}</p>
+              <p className="text-xs text-muted-foreground mb-1">Topics Created</p>
+              <p className="font-semibold text-foreground">{topicsCreated}</p>
             </div>
             
-            {isCurrentUser && (
+            {isCurrentUser && user && (
               <>
                 <div className="bg-card rounded-2xl p-4 border border-border/50 text-center">
                   <div className="w-10 h-10 rounded-xl bg-warning/10 flex items-center justify-center mx-auto mb-2">
-                    <Flame className="w-5 h-5 text-warning" />
+                    <Heart className="w-5 h-5 text-warning" />
                   </div>
-                  <p className="text-xs text-muted-foreground mb-1">Current Streak</p>
-                  <p className="font-semibold text-foreground">{streak} days</p>
+                  <p className="text-xs text-muted-foreground mb-1">Likes Received</p>
+                  <p className="font-semibold text-foreground">{likesReceived}</p>
                 </div>
                 
                 <div className="bg-card rounded-2xl p-4 border border-border/50 text-center">
                   <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center mx-auto mb-2">
-                    <Users className="w-5 h-5 text-accent-foreground" />
+                    <Eye className="w-5 h-5 text-accent-foreground" />
                   </div>
-                  <p className="text-xs text-muted-foreground mb-1">Order Month</p>
-                  <p className="font-semibold text-foreground">Month {orderCount}</p>
+                  <p className="text-xs text-muted-foreground mb-1">Days Visited</p>
+                  <p className="font-semibold text-foreground">{daysVisited}</p>
                 </div>
               </>
             )}
@@ -130,7 +143,7 @@ export function UserProfile({
           {userPosts.length > 0 && (
             <div>
               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">
-                Recent Posts
+                Recent Topics
               </h3>
               <div className="space-y-3">
                 {userPosts.slice(0, 5).map(post => (
@@ -142,8 +155,20 @@ export function UserProfile({
                       {post.content}
                     </p>
                     <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                      <span>{post.likeCount} likes</span>
-                      <span>{post.commentCount} comments</span>
+                      <span className="flex items-center gap-1">
+                        <Heart className="w-3 h-3" />
+                        {post.likeCount}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <MessageSquare className="w-3 h-3" />
+                        {post.commentCount}
+                      </span>
+                      {post.viewCount && (
+                        <span className="flex items-center gap-1">
+                          <Eye className="w-3 h-3" />
+                          {post.viewCount}
+                        </span>
+                      )}
                       <span>{format(post.createdAt, 'MMM d')}</span>
                     </div>
                   </div>
