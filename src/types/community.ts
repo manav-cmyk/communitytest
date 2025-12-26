@@ -1,5 +1,16 @@
 export type UserRole = 'customer' | 'admin' | 'superadmin';
 
+// Discourse trust levels (0-4)
+export type TrustLevel = 0 | 1 | 2 | 3 | 4;
+
+export const trustLevelLabels: Record<TrustLevel, string> = {
+  0: 'New',
+  1: 'Basic',
+  2: 'Member',
+  3: 'Regular',
+  4: 'Leader',
+};
+
 export type TopicTag = 
   | 'usage' 
   | 'shedding' 
@@ -16,6 +27,9 @@ export type TypeTag =
 
 export type ChannelType = 'cohort' | 'topic';
 
+// Discourse notification levels for categories
+export type NotificationLevel = 'watching' | 'tracking' | 'normal' | 'muted';
+
 export interface Channel {
   id: string;
   name: string;
@@ -24,9 +38,10 @@ export interface Channel {
   icon: string;
   memberCount: number;
   unreadCount?: number;
+  topicCount?: number;
   isAdminOnly?: boolean;
   gender?: 'male' | 'female' | 'all';
-  orderRange?: [number, number]; // For cohort channels
+  orderRange?: [number, number]; // For cohort channels (group-based)
 }
 
 export interface Author {
@@ -35,6 +50,7 @@ export interface Author {
   avatar?: string;
   role: UserRole;
   badge?: string;
+  trustLevel?: TrustLevel;
 }
 
 export interface Post {
@@ -47,6 +63,7 @@ export interface Post {
   typeTag: TypeTag;
   likeCount: number;
   commentCount: number;
+  viewCount?: number;
   isLiked: boolean;
   isBookmarked: boolean;
   isPinned?: boolean;
@@ -60,15 +77,25 @@ export interface Comment {
   author: Author;
   content: string;
   image?: string;
+  likeCount?: number;
   createdAt: Date;
 }
 
 export interface User {
   id: string;
   name: string;
+  username: string;
   avatar?: string;
   gender: 'male' | 'female';
-  orderCount: number;
+  trustLevel: TrustLevel;
   joinedAt: Date;
-  streak: number;
+  lastSeenAt?: Date;
+  // Discourse stats
+  topicsCreated: number;
+  postsCount: number;
+  likesReceived: number;
+  likesGiven: number;
+  daysVisited: number;
+  // Group membership for cohort filtering
+  groups: string[];
 }

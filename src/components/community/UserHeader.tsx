@@ -1,6 +1,6 @@
-import { User } from '@/types/community';
+import { User, trustLevelLabels } from '@/types/community';
 import { cn } from '@/lib/utils';
-import { Flame, Bell, Bookmark } from 'lucide-react';
+import { Bell, Bookmark, Shield } from 'lucide-react';
 
 interface UserHeaderProps {
   user: User;
@@ -23,12 +23,12 @@ export function UserHeader({ user, onSavedPostsClick, onProfileClick, savedPosts
           <div className="text-left">
             <h3 className="font-semibold text-foreground">{user.name}</h3>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>Month {user.orderCount}</span>
-              <span className="w-1 h-1 rounded-full bg-muted-foreground" />
               <span className="flex items-center gap-1 text-primary font-medium">
-                <Flame className="w-3.5 h-3.5" />
-                {user.streak} day streak
+                <Shield className="w-3.5 h-3.5" />
+                {trustLevelLabels[user.trustLevel]}
               </span>
+              <span className="w-1 h-1 rounded-full bg-muted-foreground" />
+              <span>{user.daysVisited} days active</span>
             </div>
           </div>
         </button>

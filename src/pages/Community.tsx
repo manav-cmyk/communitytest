@@ -286,7 +286,7 @@ export default function Community() {
             channels={channels}
             activeChannelId={activeChannel?.id}
             onChannelSelect={handleChannelSelect}
-            userOrderCount={currentUser.orderCount}
+            userGroups={currentUser.groups}
             onExitCommunity={() => setShowExitDialog(true)}
             joinedChannels={joinedChannels}
           />
@@ -371,7 +371,7 @@ export default function Community() {
               channels={channels}
               activeChannelId={activeChannel?.id}
               onChannelSelect={handleChannelSelect}
-              userOrderCount={currentUser.orderCount}
+              userGroups={currentUser.groups}
               onExitCommunity={() => setShowExitDialog(true)}
               joinedChannels={joinedChannels}
             />

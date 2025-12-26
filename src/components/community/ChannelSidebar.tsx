@@ -1,7 +1,7 @@
 import { Channel } from '@/types/community';
 import { ChannelCard } from './ChannelCard';
 import { cn } from '@/lib/utils';
-import { Flame, Users, ChevronDown, LogOut, Check } from 'lucide-react';
+import { Flame, Users, ChevronDown, LogOut } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 
@@ -9,7 +9,7 @@ interface ChannelSidebarProps {
   channels: Channel[];
   activeChannelId?: string;
   onChannelSelect: (channel: Channel) => void;
-  userOrderCount: number;
+  userGroups: string[]; // Discourse-style group membership
   onExitCommunity: () => void;
   joinedChannels: Set<string>;
 }
@@ -18,25 +18,18 @@ export function ChannelSidebar({
   channels, 
   activeChannelId, 
   onChannelSelect,
-  userOrderCount,
+  userGroups,
   onExitCommunity,
   joinedChannels 
 }: ChannelSidebarProps) {
   const [topicExpanded, setTopicExpanded] = useState(true);
   
-  // Filter to only show user's current cohort channel
+  // Filter to only show user's current cohort channel (based on group membership)
   const cohortChannels = channels.filter(c => c.type === 'cohort');
   const topicChannels = channels.filter(c => c.type === 'topic');
   
-  // Find user's current cohort based on order count
-  const getCurrentCohort = () => {
-    return cohortChannels.find(c => {
-      if (!c.orderRange) return false;
-      return userOrderCount >= c.orderRange[0] && userOrderCount <= c.orderRange[1];
-    });
-  };
-  
-  const currentCohort = getCurrentCohort();
+  // Find user's current cohort based on group membership
+  const currentCohort = cohortChannels.find(c => userGroups.includes(c.id));
   
   return (
     <div className="h-full bg-sidebar overflow-y-auto flex flex-col">
