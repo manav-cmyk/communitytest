@@ -1,12 +1,13 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Channel, Post, TopicTag, TypeTag } from '@/types/community';
 import { PostCard } from './PostCard';
 import { PostComposer } from './PostComposer';
 import { FilterBar } from './FilterBar';
+import { ChannelInfoSection } from './ChannelInfoSection';
+import { CohortWelcomeDialog } from './CohortWelcomeDialog';
 import { cn } from '@/lib/utils';
-import { Plus, Search, ArrowLeft, Users, LogOut } from 'lucide-react';
+import { Plus, Search, ArrowLeft, Users, LogOut, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
 interface ChannelFeedProps {
   channel: Channel;
   posts: Post[];
@@ -20,6 +21,8 @@ interface ChannelFeedProps {
   onMembersClick: () => void;
   onJoinChannel: () => void;
   onLeaveChannel: () => void;
+  visitedCohorts: Set<string>;
+  onCohortVisited: (channelId: string) => void;
 }
 
 export function ChannelFeed({
@@ -35,12 +38,24 @@ export function ChannelFeed({
   onMembersClick,
   onJoinChannel,
   onLeaveChannel,
+  visitedCohorts,
+  onCohortVisited,
 }: ChannelFeedProps) {
   const [showComposer, setShowComposer] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTopic, setSelectedTopic] = useState<TopicTag>();
   const [selectedType, setSelectedType] = useState<TypeTag>();
   const [adminOnly, setAdminOnly] = useState(false);
+  const [showInfoSection, setShowInfoSection] = useState(false);
+  const [showWelcomeDialog, setShowWelcomeDialog] = useState(false);
+  
+  // Show welcome dialog for first-time cohort visits
+  useEffect(() => {
+    if (channel.type === 'cohort' && !visitedCohorts.has(channel.id)) {
+      setShowWelcomeDialog(true);
+      onCohortVisited(channel.id);
+    }
+  }, [channel.id, channel.type, visitedCohorts, onCohortVisited]);
   
   const filteredPosts = useMemo(() => {
     return posts
@@ -76,6 +91,14 @@ export function ChannelFeed({
   
   return (
     <div className="h-full flex flex-col bg-background">
+      {/* Welcome Dialog for Cohort Channels */}
+      <CohortWelcomeDialog
+        open={showWelcomeDialog}
+        onOpenChange={setShowWelcomeDialog}
+        channelName={channel.name}
+        channelIcon={channel.icon}
+      />
+      
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/50">
         <div className="p-4">
@@ -95,8 +118,19 @@ export function ChannelFeed({
               <p className="text-sm text-muted-foreground">{channel.description}</p>
             </div>
 
-            {/* Members & Join/Leave buttons */}
-            <div className="flex items-center gap-2">
+            {/* Info, Members & Join/Leave buttons */}
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setShowInfoSection(!showInfoSection)}
+                className={cn(
+                  "p-2 rounded-xl transition-colors",
+                  showInfoSection ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground"
+                )}
+                title="Channel info"
+              >
+                <Info className="w-5 h-5" />
+              </button>
+              
               <button
                 onClick={onMembersClick}
                 className="p-2 rounded-xl hover:bg-muted transition-colors"
@@ -152,6 +186,14 @@ export function ChannelFeed({
           />
         </div>
       </div>
+      
+      {/* Info Section (Collapsible) */}
+      {showInfoSection && (
+        <ChannelInfoSection 
+          channelName={channel.name}
+          channelType={channel.type}
+        />
+      )}
       
       {/* Feed */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">

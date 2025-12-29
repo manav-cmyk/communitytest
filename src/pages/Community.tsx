@@ -35,6 +35,13 @@ export default function Community() {
   const [showJoinChannelDialog, setShowJoinChannelDialog] = useState(false);
   const [pendingJoinChannel, setPendingJoinChannel] = useState<Channel | null>(null);
   
+  // Track visited cohort channels for first-time welcome popup
+  const [visitedCohorts, setVisitedCohorts] = useState<Set<string>>(new Set());
+  
+  const handleCohortVisited = useCallback((channelId: string) => {
+    setVisitedCohorts(prev => new Set([...prev, channelId]));
+  }, []);
+  
   const handleJoinCommunity = useCallback(() => {
     setIsMember(true);
     setShowJoinDialog(false);
@@ -306,6 +313,8 @@ export default function Community() {
             onMembersClick={handleMembersClick}
             onJoinChannel={() => handleJoinChannel(activeChannel)}
             onLeaveChannel={() => handleLeaveChannel(activeChannel.id)}
+            visitedCohorts={visitedCohorts}
+            onCohortVisited={handleCohortVisited}
           />
         )}
 
@@ -427,6 +436,8 @@ export default function Community() {
                 onMembersClick={handleMembersClick}
                 onJoinChannel={() => handleJoinChannel(activeChannel)}
                 onLeaveChannel={() => handleLeaveChannel(activeChannel.id)}
+                visitedCohorts={visitedCohorts}
+                onCohortVisited={handleCohortVisited}
               />
             ) : (
               <div className="h-full flex items-center justify-center">
