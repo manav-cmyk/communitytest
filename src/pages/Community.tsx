@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { Channel, Post, TopicTag, TypeTag, Author } from '@/types/community';
-import { channels, posts as initialPosts, comments, currentUser, channelMembers } from '@/data/mockData';
+import { channels, posts as initialPosts, comments, currentUser as initialCurrentUser, channelMembers } from '@/data/mockData';
 import { ChannelSidebar } from '@/components/community/ChannelSidebar';
 import { ChannelFeed } from '@/components/community/ChannelFeed';
 import { PostDetail } from '@/components/community/PostDetail';
@@ -12,9 +12,11 @@ import { JoinCommunityDialog } from '@/components/community/JoinCommunityDialog'
 import { ExitCommunityDialog } from '@/components/community/ExitCommunityDialog';
 import { JoinChannelDialog } from '@/components/community/JoinChannelDialog';
 import { ChannelMembers } from '@/components/community/ChannelMembers';
+import { CommunityNameDialog } from '@/components/community/CommunityNameDialog';
 import { cn } from '@/lib/utils';
 
 type View = 'channels' | 'feed' | 'post' | 'saved' | 'profile' | 'members';
+type OnboardingStep = 'welcome' | 'join-dialog' | 'name-dialog' | 'complete';
 
 export default function Community() {
   const [view, setView] = useState<View>('channels');
@@ -25,10 +27,10 @@ export default function Community() {
   const [viewingAuthor, setViewingAuthor] = useState<Author | null>(null);
   const [isViewingOwnProfile, setIsViewingOwnProfile] = useState(false);
   
-  // Community membership state
-  const [isMember, setIsMember] = useState(false);
-  const [showJoinDialog, setShowJoinDialog] = useState(false);
+  // Community membership and onboarding state
+  const [onboardingStep, setOnboardingStep] = useState<OnboardingStep>('welcome');
   const [showExitDialog, setShowExitDialog] = useState(false);
+  const [currentUser, setCurrentUser] = useState(initialCurrentUser);
   
   // Per-channel join state (topic channels only)
   const [joinedChannels, setJoinedChannels] = useState<Set<string>>(new Set());
@@ -42,13 +44,21 @@ export default function Community() {
     setVisitedCohorts(prev => new Set([...prev, channelId]));
   }, []);
   
+  const handleWelcomeJoin = useCallback(() => {
+    setOnboardingStep('join-dialog');
+  }, []);
+
   const handleJoinCommunity = useCallback(() => {
-    setIsMember(true);
-    setShowJoinDialog(false);
+    setOnboardingStep('name-dialog');
+  }, []);
+
+  const handleNameSubmit = useCallback((name: string) => {
+    setCurrentUser(prev => ({ ...prev, name }));
+    setOnboardingStep('complete');
   }, []);
   
   const handleExitCommunity = useCallback(() => {
-    setIsMember(false);
+    setOnboardingStep('welcome');
     setShowExitDialog(false);
     setActiveChannel(null);
     setActivePost(null);
@@ -77,8 +87,8 @@ export default function Community() {
   }, [joinedChannels]);
   
   const handleChannelSelect = useCallback((channel: Channel) => {
-    if (!isMember) {
-      setShowJoinDialog(true);
+    if (onboardingStep !== 'complete') {
+      setOnboardingStep('join-dialog');
       return;
     }
     
@@ -91,7 +101,7 @@ export default function Community() {
     
     setActiveChannel(channel);
     setView('feed');
-  }, [isMember, joinedChannels]);
+  }, [onboardingStep, joinedChannels]);
 
   const handleMembersClick = useCallback(() => {
     setPreviousView(view);
@@ -239,15 +249,20 @@ export default function Community() {
     ? channelMembers[activeChannel.id] || []
     : [];
 
-  // Show welcome screen if not a member
-  if (!isMember) {
+  // Show welcome/onboarding screens if not complete
+  if (onboardingStep !== 'complete') {
     return (
       <>
-        <CommunityWelcome onJoin={handleJoinCommunity} />
+        <CommunityWelcome onJoin={handleWelcomeJoin} />
         <JoinCommunityDialog 
-          open={showJoinDialog} 
-          onOpenChange={setShowJoinDialog}
+          open={onboardingStep === 'join-dialog'} 
+          onOpenChange={(open) => !open && setOnboardingStep('welcome')}
           onJoin={handleJoinCommunity}
+        />
+        <CommunityNameDialog
+          open={onboardingStep === 'name-dialog'}
+          onOpenChange={(open) => !open && setOnboardingStep('join-dialog')}
+          onSubmit={handleNameSubmit}
         />
       </>
     );
@@ -256,11 +271,6 @@ export default function Community() {
   return (
     <div className="min-h-screen bg-background">
       {/* Dialogs */}
-      <JoinCommunityDialog 
-        open={showJoinDialog} 
-        onOpenChange={setShowJoinDialog}
-        onJoin={handleJoinCommunity}
-      />
       <ExitCommunityDialog 
         open={showExitDialog} 
         onOpenChange={setShowExitDialog}
