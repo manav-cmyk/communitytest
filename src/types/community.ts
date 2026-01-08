@@ -47,7 +47,6 @@ export interface Channel {
 export interface Author {
   id: string;
   name: string;
-  username?: string;
   avatar?: string;
   role: UserRole;
   badge?: string;
