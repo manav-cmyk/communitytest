@@ -6,7 +6,7 @@ import { FilterBar } from './FilterBar';
 import { ChannelInfoSection } from './ChannelInfoSection';
 import { CohortWelcomeDialog } from './CohortWelcomeDialog';
 import { cn } from '@/lib/utils';
-import { Plus, Search, ArrowLeft, Users, LogOut, Info } from 'lucide-react';
+import { Plus, ArrowLeft, Users, LogOut, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 interface ChannelFeedProps {
   channel: Channel;
@@ -42,7 +42,6 @@ export function ChannelFeed({
   onCohortVisited,
 }: ChannelFeedProps) {
   const [showComposer, setShowComposer] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedTopic, setSelectedTopic] = useState<TopicTag>();
   const [selectedType, setSelectedType] = useState<TypeTag>();
   const [adminOnly, setAdminOnly] = useState(false);
@@ -60,12 +59,6 @@ export function ChannelFeed({
   const filteredPosts = useMemo(() => {
     return posts
       .filter(post => post.channelId === channel.id)
-      .filter(post => {
-        if (searchQuery) {
-          return post.content.toLowerCase().includes(searchQuery.toLowerCase());
-        }
-        return true;
-      })
       .filter(post => {
         if (selectedTopic) return post.topicTag === selectedTopic;
         return true;
@@ -87,7 +80,7 @@ export function ChannelFeed({
         // Then by date
         return b.createdAt.getTime() - a.createdAt.getTime();
       });
-  }, [posts, channel.id, searchQuery, selectedTopic, selectedType, adminOnly]);
+  }, [posts, channel.id, selectedTopic, selectedType, adminOnly]);
   
   return (
     <div className="h-full flex flex-col bg-background">
@@ -161,18 +154,6 @@ export function ChannelFeed({
                 )
               )}
             </div>
-          </div>
-          
-          {/* Search */}
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search posts..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-secondary/50 border-0 rounded-xl text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
-            />
           </div>
           
           {/* Filters */}
