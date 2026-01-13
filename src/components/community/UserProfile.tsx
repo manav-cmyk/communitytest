@@ -1,7 +1,10 @@
 import { Author, User, Post, trustLevelLabels, TrustLevel } from '@/types/community';
 import { cn } from '@/lib/utils';
-import { ArrowLeft, Calendar, FileText, Shield, MessageSquare, Heart, Eye } from 'lucide-react';
+import { ArrowLeft, Calendar, FileText, Shield, MessageSquare, Heart, Eye, Pencil, Camera, Check, X } from 'lucide-react';
 import { format } from 'date-fns';
+import { useState, useRef } from 'react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 interface UserProfileProps {
   user?: User;
@@ -11,6 +14,7 @@ interface UserProfileProps {
   isModerator?: boolean;
   memberSince?: Date;
   onBack: () => void;
+  onUpdateProfile?: (name: string, photoUrl?: string) => void;
 }
 
 export function UserProfile({ 
@@ -20,9 +24,16 @@ export function UserProfile({
   isCurrentUser = false,
   isModerator = false,
   memberSince,
-  onBack 
+  onBack,
+  onUpdateProfile
 }: UserProfileProps) {
-  const name = user?.name || author?.name || 'User';
+  const initialName = user?.name || author?.name || 'User';
+  const [displayName, setDisplayName] = useState(initialName);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState(initialName);
+  const [photoUrl, setPhotoUrl] = useState<string | undefined>(undefined);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
   const role = author?.role || 'customer';
   const badge = author?.badge;
   const isAdmin = role === 'admin' || role === 'superadmin';
@@ -38,6 +49,34 @@ export function UserProfile({
   const topicsCreated = user?.topicsCreated || postCount;
   const likesReceived = user?.likesReceived || 0;
   const daysVisited = user?.daysVisited || 0;
+
+  const handleSaveName = () => {
+    if (editedName.trim()) {
+      setDisplayName(editedName.trim());
+      setIsEditingName(false);
+      onUpdateProfile?.(editedName.trim(), photoUrl);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditedName(displayName);
+    setIsEditingName(false);
+  };
+
+  const handlePhotoClick = () => {
+    if (isCurrentUser) {
+      fileInputRef.current?.click();
+    }
+  };
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setPhotoUrl(url);
+      onUpdateProfile?.(displayName, url);
+    }
+  };
   
   return (
     <div className="flex flex-col h-full bg-background">
@@ -61,16 +100,68 @@ export function UserProfile({
         <div className="p-6">
           {/* Avatar and Name Section */}
           <div className="flex flex-col items-center text-center mb-8">
-            <div className={cn(
-              'w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold mb-4',
-              isAdmin 
-                ? 'gradient-traya text-primary-foreground' 
-                : 'bg-accent text-accent-foreground'
-            )}>
-              {name.charAt(0)}
+            {/* Hidden file input for photo upload */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handlePhotoChange}
+              className="hidden"
+            />
+            
+            <div 
+              className={cn(
+                'relative w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold mb-4 overflow-hidden',
+                isAdmin 
+                  ? 'gradient-traya text-primary-foreground' 
+                  : 'bg-accent text-accent-foreground',
+                isCurrentUser && 'cursor-pointer group'
+              )}
+              onClick={handlePhotoClick}
+            >
+              {photoUrl ? (
+                <img src={photoUrl} alt={displayName} className="w-full h-full object-cover" />
+              ) : (
+                displayName.charAt(0)
+              )}
+              {isCurrentUser && (
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Camera className="w-6 h-6 text-white" />
+                </div>
+              )}
             </div>
             
-            <h2 className="text-xl font-bold text-foreground mb-1">{name}</h2>
+            {/* Editable Name */}
+            <div className="flex items-center gap-2 mb-1">
+              {isEditingName ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={editedName}
+                    onChange={(e) => setEditedName(e.target.value)}
+                    className="text-center text-xl font-bold h-9 w-40"
+                    autoFocus
+                  />
+                  <Button size="icon" variant="ghost" onClick={handleSaveName} className="h-8 w-8">
+                    <Check className="w-4 h-4 text-primary" />
+                  </Button>
+                  <Button size="icon" variant="ghost" onClick={handleCancelEdit} className="h-8 w-8">
+                    <X className="w-4 h-4 text-muted-foreground" />
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <h2 className="text-xl font-bold text-foreground">{displayName}</h2>
+                  {isCurrentUser && (
+                    <button
+                      onClick={() => setIsEditingName(true)}
+                      className="p-1 rounded-md hover:bg-muted transition-colors"
+                    >
+                      <Pencil className="w-4 h-4 text-muted-foreground" />
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
             {user?.username && (
               <p className="text-sm text-muted-foreground mb-2">@{user.username}</p>
             )}
