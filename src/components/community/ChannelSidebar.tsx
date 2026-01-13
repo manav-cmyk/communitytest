@@ -1,7 +1,7 @@
 import { Channel } from '@/types/community';
 import { ChannelCard } from './ChannelCard';
 import { cn } from '@/lib/utils';
-import { Flame, Users, ChevronDown, LogOut } from 'lucide-react';
+import { Users, ChevronDown, LogOut } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 
@@ -49,32 +49,17 @@ export function ChannelSidebar({
       {/* User's Current Cohort - Only show their cohort */}
       {currentCohort && (
         <div className="p-4 border-b border-sidebar-border">
-          <div className="mb-2">
+          <div className="mb-3">
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
               Your Journey Stage
             </span>
           </div>
-          <div className="bg-accent/50 rounded-xl p-3">
-            <div className="flex items-center gap-2 text-sm font-medium text-primary mb-1">
-              <Flame className="w-4 h-4" />
-              <span>Your Cohort</span>
-            </div>
-            <button
-              onClick={() => onChannelSelect(currentCohort)}
-              className={cn(
-                "w-full text-left p-2 rounded-lg transition-colors flex items-center justify-between",
-                activeChannelId === currentCohort.id 
-                  ? "bg-primary/10" 
-                  : "hover:bg-background/50"
-              )}
-            >
-              <div>
-                <span className="font-semibold text-foreground">{currentCohort.icon} {currentCohort.name}</span>
-                <p className="text-xs text-muted-foreground mt-0.5">{currentCohort.description}</p>
-              </div>
-              <ChevronDown className="w-4 h-4 text-muted-foreground -rotate-90" />
-            </button>
-          </div>
+          <ChannelCard
+            channel={currentCohort}
+            isActive={activeChannelId === currentCohort.id}
+            isJoined={true}
+            onClick={() => onChannelSelect(currentCohort)}
+          />
         </div>
       )}
       
