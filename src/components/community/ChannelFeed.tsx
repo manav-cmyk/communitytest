@@ -143,27 +143,6 @@ export function ChannelFeed({
                 <Users className="w-5 h-5 text-muted-foreground" />
               </button>
               
-              {channel.type === 'topic' && (
-                isJoined ? (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={onLeaveChannel}
-                    className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                  >
-                    <LogOut className="w-4 h-4 mr-1" />
-                    Leave
-                  </Button>
-                ) : (
-                  <Button
-                    size="sm"
-                    onClick={onJoinChannel}
-                    className="gradient-traya text-primary-foreground"
-                  >
-                    Join
-                  </Button>
-                )
-              )}
             </div>
           </div>
           
