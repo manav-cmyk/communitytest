@@ -6,8 +6,8 @@
 
 @layer base {
   :root {
-    /* Traya Green Theme */
-    --background: 120 20% 98%;
+    /* Clean White Theme */
+    --background: 0 0% 100%;
     --foreground: 150 30% 15%;
 
     --card: 0 0% 100%;
@@ -64,7 +64,7 @@
     --shadow-glow: 0 0 20px hsl(var(--traya-green) / 0.15);
 
     /* Sidebar */
-    --sidebar-background: 140 20% 97%;
+    --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 150 30% 25%;
     --sidebar-primary: 145 63% 32%;
     --sidebar-primary-foreground: 0 0% 100%;

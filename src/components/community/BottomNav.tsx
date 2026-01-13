@@ -49,15 +49,13 @@ export function BottomNav({ activeTab, onTabChange, onBackToApp }: BottomNavProp
           </button>
         ))}
         
-        {/* Back to App Button */}
+        {/* Back to Traya App Button - Prominent */}
         <button
           onClick={handleBackToApp}
-          className="flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all text-muted-foreground hover:text-foreground"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl transition-all bg-primary text-primary-foreground hover:bg-primary/90 shadow-md"
         >
-          <div className="w-5 h-5 rounded-md bg-primary/10 flex items-center justify-center">
-            <ArrowUpRight className="w-3.5 h-3.5 text-primary" />
-          </div>
-          <span className="text-xs font-medium">Traya App</span>
+          <ArrowUpRight className="w-4 h-4" />
+          <span className="text-sm font-semibold">Traya App</span>
         </button>
       </div>
     </nav>
