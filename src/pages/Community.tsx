@@ -13,6 +13,9 @@ import { ExitCommunityDialog } from '@/components/community/ExitCommunityDialog'
 import { JoinChannelDialog } from '@/components/community/JoinChannelDialog';
 import { ChannelMembers } from '@/components/community/ChannelMembers';
 import { CommunityNameDialog } from '@/components/community/CommunityNameDialog';
+import { BottomNav, MobileTab } from '@/components/community/BottomNav';
+import { GlobalSearch } from '@/components/community/GlobalSearch';
+import { LibraryPage } from '@/components/community/LibraryPage';
 import { cn } from '@/lib/utils';
 
 type View = 'channels' | 'feed' | 'post' | 'saved' | 'profile' | 'members';
@@ -39,6 +42,19 @@ export default function Community() {
   
   // Track visited cohort channels for first-time welcome popup
   const [visitedCohorts, setVisitedCohorts] = useState<Set<string>>(new Set());
+  
+  // Mobile bottom nav tab
+  const [mobileTab, setMobileTab] = useState<MobileTab>('home');
+  
+  const handleMobileTabChange = useCallback((tab: MobileTab) => {
+    setMobileTab(tab);
+    // Reset view when switching tabs
+    if (tab === 'home') {
+      setView('channels');
+      setActiveChannel(null);
+      setActivePost(null);
+    }
+  }, []);
   
   const handleCohortVisited = useCallback((channelId: string) => {
     setVisitedCohorts(prev => new Set([...prev, channelId]));
@@ -290,7 +306,7 @@ export default function Community() {
       />
 
       {/* Mobile Layout */}
-      <div className="lg:hidden">
+      <div className="lg:hidden pb-16">
         <UserHeader 
           user={currentUser} 
           onSavedPostsClick={handleSavedPostsClick}
@@ -298,81 +314,108 @@ export default function Community() {
           savedPostsCount={savedPostsCount}
         />
         
-        {view === 'channels' && (
-          <ChannelSidebar
-            channels={channels}
-            activeChannelId={activeChannel?.id}
-            onChannelSelect={handleChannelSelect}
-            userGroups={currentUser.groups}
-            onExitCommunity={() => setShowExitDialog(true)}
-            joinedChannels={joinedChannels}
-          />
+        {/* Home Tab */}
+        {mobileTab === 'home' && (
+          <>
+            {view === 'channels' && (
+              <ChannelSidebar
+                channels={channels}
+                activeChannelId={activeChannel?.id}
+                onChannelSelect={handleChannelSelect}
+                userGroups={currentUser.groups}
+                onExitCommunity={() => setShowExitDialog(true)}
+                joinedChannels={joinedChannels}
+              />
+            )}
+            
+            {view === 'feed' && activeChannel && (
+              <ChannelFeed
+                channel={activeChannel}
+                posts={posts}
+                isJoined={isChannelJoined(activeChannel)}
+                onPostClick={handlePostClick}
+                onPostLike={handlePostLike}
+                onPostBookmark={handlePostBookmark}
+                onNewPost={handleNewPost}
+                onBack={handleBack}
+                onAuthorClick={handleAuthorClick}
+                onMembersClick={handleMembersClick}
+                onJoinChannel={() => handleJoinChannel(activeChannel)}
+                onLeaveChannel={() => handleLeaveChannel(activeChannel.id)}
+                visitedCohorts={visitedCohorts}
+                onCohortVisited={handleCohortVisited}
+              />
+            )}
+
+            {view === 'members' && activeChannel && (
+              <ChannelMembers
+                channelName={activeChannel.name}
+                channelIcon={activeChannel.icon}
+                members={activeChannelMembers}
+                onBack={handleBack}
+                onMemberClick={handleAuthorClick}
+              />
+            )}
+            
+            {view === 'post' && activePost && (
+              <PostDetail
+                post={activePost}
+                comments={postComments}
+                onBack={handleBack}
+                onLike={() => handlePostLike(activePost.id)}
+                onBookmark={() => handlePostBookmark(activePost.id)}
+                onComment={handleNewComment}
+                onAuthorClick={handleAuthorClick}
+              />
+            )}
+
+            {view === 'saved' && (
+              <SavedPosts
+                posts={posts}
+                onPostClick={(post) => {
+                  setPreviousView('saved');
+                  handlePostClick(post);
+                }}
+                onPostLike={handlePostLike}
+                onPostBookmark={handlePostBookmark}
+                onBack={handleBack}
+                onAuthorClick={handleAuthorClick}
+              />
+            )}
+
+            {view === 'profile' && (
+              <UserProfile
+                user={isViewingOwnProfile ? currentUser : undefined}
+                author={viewingAuthor || undefined}
+                posts={posts}
+                isCurrentUser={isViewingOwnProfile}
+                onBack={handleBack}
+              />
+            )}
+          </>
         )}
         
-        {view === 'feed' && activeChannel && (
-          <ChannelFeed
-            channel={activeChannel}
-            posts={posts}
-            isJoined={isChannelJoined(activeChannel)}
-            onPostClick={handlePostClick}
-            onPostLike={handlePostLike}
-            onPostBookmark={handlePostBookmark}
-            onNewPost={handleNewPost}
-            onBack={handleBack}
-            onAuthorClick={handleAuthorClick}
-            onMembersClick={handleMembersClick}
-            onJoinChannel={() => handleJoinChannel(activeChannel)}
-            onLeaveChannel={() => handleLeaveChannel(activeChannel.id)}
-            visitedCohorts={visitedCohorts}
-            onCohortVisited={handleCohortVisited}
-          />
-        )}
-
-        {view === 'members' && activeChannel && (
-          <ChannelMembers
-            channelName={activeChannel.name}
-            channelIcon={activeChannel.icon}
-            members={activeChannelMembers}
-            onBack={handleBack}
-            onMemberClick={handleAuthorClick}
-          />
-        )}
-        
-        {view === 'post' && activePost && (
-          <PostDetail
-            post={activePost}
-            comments={postComments}
-            onBack={handleBack}
-            onLike={() => handlePostLike(activePost.id)}
-            onBookmark={() => handlePostBookmark(activePost.id)}
-            onComment={handleNewComment}
-            onAuthorClick={handleAuthorClick}
-          />
-        )}
-
-        {view === 'saved' && (
-          <SavedPosts
+        {/* Search Tab */}
+        {mobileTab === 'search' && (
+          <GlobalSearch
             posts={posts}
             onPostClick={(post) => {
-              setPreviousView('saved');
+              setMobileTab('home');
               handlePostClick(post);
             }}
             onPostLike={handlePostLike}
             onPostBookmark={handlePostBookmark}
-            onBack={handleBack}
             onAuthorClick={handleAuthorClick}
           />
         )}
-
-        {view === 'profile' && (
-          <UserProfile
-            user={isViewingOwnProfile ? currentUser : undefined}
-            author={viewingAuthor || undefined}
-            posts={posts}
-            isCurrentUser={isViewingOwnProfile}
-            onBack={handleBack}
-          />
+        
+        {/* Library Tab */}
+        {mobileTab === 'library' && (
+          <LibraryPage />
         )}
+        
+        {/* Bottom Navigation */}
+        <BottomNav activeTab={mobileTab} onTabChange={handleMobileTabChange} />
       </div>
       
       {/* Desktop Layout */}
