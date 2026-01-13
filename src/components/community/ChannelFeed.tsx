@@ -48,13 +48,24 @@ export function ChannelFeed({
   const [showInfoSection, setShowInfoSection] = useState(false);
   const [showWelcomeDialog, setShowWelcomeDialog] = useState(false);
   
-  // Show welcome dialog for first-time cohort visits
+  // Show welcome dialog for first-time cohort visits - only once
   useEffect(() => {
     if (channel.type === 'cohort' && !visitedCohorts.has(channel.id)) {
-      setShowWelcomeDialog(true);
+      // Small delay to ensure the component is fully mounted before showing dialog
+      const timer = setTimeout(() => {
+        setShowWelcomeDialog(true);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [channel.id, channel.type, visitedCohorts]);
+
+  // Mark cohort as visited when dialog is closed (not when opened)
+  const handleWelcomeDialogClose = (open: boolean) => {
+    setShowWelcomeDialog(open);
+    if (!open && channel.type === 'cohort') {
       onCohortVisited(channel.id);
     }
-  }, [channel.id, channel.type, visitedCohorts, onCohortVisited]);
+  };
   
   const filteredPosts = useMemo(() => {
     return posts
@@ -87,7 +98,7 @@ export function ChannelFeed({
       {/* Welcome Dialog for Cohort Channels */}
       <CohortWelcomeDialog
         open={showWelcomeDialog}
-        onOpenChange={setShowWelcomeDialog}
+        onOpenChange={handleWelcomeDialogClose}
         channelName={channel.name}
         channelIcon={channel.icon}
       />

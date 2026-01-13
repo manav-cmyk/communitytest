@@ -14,7 +14,7 @@ export function CommunityWelcome({ onJoin }: CommunityWelcomeProps) {
         </div>
         
         <h1 className="text-2xl font-bold text-foreground mb-3">
-          Welcome to Traya Community
+          Welcome to Your Community
         </h1>
         <p className="text-muted-foreground mb-8">
           Join thousands of hair warriors supporting each other on their transformation journey
