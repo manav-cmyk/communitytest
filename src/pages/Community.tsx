@@ -307,25 +307,26 @@ export default function Community() {
 
       {/* Mobile Layout */}
       <div className="lg:hidden pb-16">
-        <UserHeader 
-          user={currentUser} 
-          onSavedPostsClick={handleSavedPostsClick}
-          onProfileClick={handleProfileClick}
-          savedPostsCount={savedPostsCount}
-        />
-        
         {/* Home Tab */}
         {mobileTab === 'home' && (
           <>
             {view === 'channels' && (
-              <ChannelSidebar
-                channels={channels}
-                activeChannelId={activeChannel?.id}
-                onChannelSelect={handleChannelSelect}
-                userGroups={currentUser.groups}
-                onExitCommunity={() => setShowExitDialog(true)}
-                joinedChannels={joinedChannels}
-              />
+              <>
+                <UserHeader 
+                  user={currentUser} 
+                  onSavedPostsClick={handleSavedPostsClick}
+                  onProfileClick={handleProfileClick}
+                  savedPostsCount={savedPostsCount}
+                />
+                <ChannelSidebar
+                  channels={channels}
+                  activeChannelId={activeChannel?.id}
+                  onChannelSelect={handleChannelSelect}
+                  userGroups={currentUser.groups}
+                  onExitCommunity={() => setShowExitDialog(true)}
+                  joinedChannels={joinedChannels}
+                />
+              </>
             )}
             
             {view === 'feed' && activeChannel && (
