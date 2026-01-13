@@ -40,7 +40,7 @@ export function ChannelSidebar({
             <Users className="w-5 h-5 text-primary-foreground" />
           </div>
           <div>
-            <h2 className="font-bold text-foreground">Traya Community</h2>
+            <h2 className="font-bold text-foreground">Your Community</h2>
             <p className="text-xs text-muted-foreground">Support & motivation</p>
           </div>
         </div>
@@ -62,14 +62,17 @@ export function ChannelSidebar({
             <button
               onClick={() => onChannelSelect(currentCohort)}
               className={cn(
-                "w-full text-left p-2 rounded-lg transition-colors",
+                "w-full text-left p-2 rounded-lg transition-colors flex items-center justify-between",
                 activeChannelId === currentCohort.id 
                   ? "bg-primary/10" 
                   : "hover:bg-background/50"
               )}
             >
-              <span className="font-semibold text-foreground">{currentCohort.icon} {currentCohort.name}</span>
-              <p className="text-xs text-muted-foreground mt-0.5">{currentCohort.description}</p>
+              <div>
+                <span className="font-semibold text-foreground">{currentCohort.icon} {currentCohort.name}</span>
+                <p className="text-xs text-muted-foreground mt-0.5">{currentCohort.description}</p>
+              </div>
+              <ChevronDown className="w-4 h-4 text-muted-foreground -rotate-90" />
             </button>
           </div>
         </div>

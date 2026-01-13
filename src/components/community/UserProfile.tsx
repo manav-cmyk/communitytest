@@ -139,14 +139,14 @@ export function UserProfile({
             )}
           </div>
           
-          {/* Recent Posts Section */}
-          {userPosts.length > 0 && (
-            <div>
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">
-                Recent Topics
-              </h3>
+          {/* All Posts Section - Show all posts by this user */}
+          <div>
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">
+              {isCurrentUser ? 'Your Posts' : 'Posts'} ({userPosts.length})
+            </h3>
+            {userPosts.length > 0 ? (
               <div className="space-y-3">
-                {userPosts.slice(0, 5).map(post => (
+                {userPosts.map(post => (
                   <div 
                     key={post.id}
                     className="bg-card rounded-xl p-4 border border-border/50"
@@ -174,8 +174,13 @@ export function UserProfile({
                   </div>
                 ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <FileText className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">No posts yet</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

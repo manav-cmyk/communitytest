@@ -61,10 +61,7 @@ export default function Community() {
   }, []);
   
   const handleWelcomeJoin = useCallback(() => {
-    setOnboardingStep('join-dialog');
-  }, []);
-
-  const handleJoinCommunity = useCallback(() => {
+    // Skip join-dialog, go directly to name dialog
     setOnboardingStep('name-dialog');
   }, []);
 
@@ -270,14 +267,9 @@ export default function Community() {
     return (
       <>
         <CommunityWelcome onJoin={handleWelcomeJoin} />
-        <JoinCommunityDialog 
-          open={onboardingStep === 'join-dialog'} 
-          onOpenChange={(open) => !open && setOnboardingStep('welcome')}
-          onJoin={handleJoinCommunity}
-        />
         <CommunityNameDialog
           open={onboardingStep === 'name-dialog'}
-          onOpenChange={(open) => !open && setOnboardingStep('join-dialog')}
+          onOpenChange={(open) => !open && setOnboardingStep('welcome')}
           onSubmit={handleNameSubmit}
         />
       </>

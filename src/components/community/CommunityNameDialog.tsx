@@ -50,7 +50,7 @@ export function CommunityNameDialog({ open, onOpenChange, onSubmit }: CommunityN
           <div className="w-16 h-16 rounded-2xl gradient-traya flex items-center justify-center mx-auto mb-4">
             <User className="w-8 h-8 text-primary-foreground" />
           </div>
-          <DialogTitle className="text-center text-xl">Choose Your Community Name</DialogTitle>
+          <DialogTitle className="text-center text-xl">What should we call you?</DialogTitle>
           <DialogDescription className="text-center">
             This name will be visible on all your posts, comments, and profile in the community
           </DialogDescription>
