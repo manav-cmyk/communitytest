@@ -57,7 +57,7 @@ export function BottomNav({ activeTab, onTabChange, onBackToApp }: BottomNavProp
           <div className="w-5 h-5 rounded-md bg-primary/10 flex items-center justify-center">
             <ArrowUpRight className="w-3.5 h-3.5 text-primary" />
           </div>
-          <span className="text-xs font-medium">App</span>
+          <span className="text-xs font-medium">Traya App</span>
         </button>
       </div>
     </nav>
