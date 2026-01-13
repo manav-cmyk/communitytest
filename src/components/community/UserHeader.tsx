@@ -6,10 +6,11 @@ interface UserHeaderProps {
   user: User;
   onSavedPostsClick?: () => void;
   onProfileClick?: () => void;
+  onNotificationsClick?: () => void;
   savedPostsCount?: number;
 }
 
-export function UserHeader({ user, onSavedPostsClick, onProfileClick, savedPostsCount = 0 }: UserHeaderProps) {
+export function UserHeader({ user, onSavedPostsClick, onProfileClick, onNotificationsClick, savedPostsCount = 0 }: UserHeaderProps) {
   return (
     <div className="bg-card border-b border-border/50 p-4">
       <div className="flex items-center justify-between">
@@ -45,7 +46,10 @@ export function UserHeader({ user, onSavedPostsClick, onProfileClick, savedPosts
               </span>
             )}
           </button>
-          <button className="p-2 rounded-xl hover:bg-muted transition-colors text-muted-foreground hover:text-foreground relative">
+          <button 
+            onClick={onNotificationsClick}
+            className="p-2 rounded-xl hover:bg-muted transition-colors text-muted-foreground hover:text-foreground relative"
+          >
             <Bell className="w-5 h-5" />
             <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full" />
           </button>

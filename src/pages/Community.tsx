@@ -16,9 +16,10 @@ import { CommunityNameDialog } from '@/components/community/CommunityNameDialog'
 import { BottomNav, MobileTab } from '@/components/community/BottomNav';
 import { GlobalSearch } from '@/components/community/GlobalSearch';
 import { LibraryPage } from '@/components/community/LibraryPage';
+import { NotificationsPage } from '@/components/community/NotificationsPage';
 import { cn } from '@/lib/utils';
 
-type View = 'channels' | 'feed' | 'post' | 'saved' | 'profile' | 'members';
+type View = 'channels' | 'feed' | 'post' | 'saved' | 'profile' | 'members' | 'notifications';
 type OnboardingStep = 'welcome' | 'join-dialog' | 'name-dialog' | 'complete';
 
 export default function Community() {
@@ -142,8 +143,15 @@ export default function Community() {
       setView(previousView === 'post' ? 'post' : previousView === 'feed' ? 'feed' : previousView === 'members' ? 'members' : 'channels');
     } else if (view === 'members') {
       setView('feed');
+    } else if (view === 'notifications') {
+      setView('channels');
     }
   }, [view, previousView]);
+
+  const handleNotificationsClick = useCallback(() => {
+    setPreviousView(view);
+    setView('notifications');
+  }, [view]);
 
   const handleSavedPostsClick = useCallback(() => {
     setPreviousView(view);
@@ -308,6 +316,7 @@ export default function Community() {
                   user={currentUser} 
                   onSavedPostsClick={handleSavedPostsClick}
                   onProfileClick={handleProfileClick}
+                  onNotificationsClick={handleNotificationsClick}
                   savedPostsCount={savedPostsCount}
                 />
                 <ChannelSidebar
@@ -385,6 +394,10 @@ export default function Community() {
                 onBack={handleBack}
               />
             )}
+
+            {view === 'notifications' && (
+              <NotificationsPage onBack={handleBack} />
+            )}
           </>
         )}
         
@@ -419,6 +432,7 @@ export default function Community() {
             user={currentUser} 
             onSavedPostsClick={handleSavedPostsClick}
             onProfileClick={handleProfileClick}
+            onNotificationsClick={handleNotificationsClick}
             savedPostsCount={savedPostsCount}
           />
           <div className="flex-1 overflow-hidden">
