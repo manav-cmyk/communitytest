@@ -6,8 +6,9 @@ import { FilterBar } from './FilterBar';
 import { ChannelInfoSection } from './ChannelInfoSection';
 import { CohortWelcomeDialog } from './CohortWelcomeDialog';
 import { cn } from '@/lib/utils';
-import { Plus, ArrowLeft, Users, LogOut, Info } from 'lucide-react';
+import { Plus, ArrowLeft, Users, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 interface ChannelFeedProps {
   channel: Channel;
   posts: Post[];
@@ -44,9 +45,15 @@ export function ChannelFeed({
   const [showComposer, setShowComposer] = useState(false);
   const [selectedTopic, setSelectedTopic] = useState<TopicTag>();
   const [selectedType, setSelectedType] = useState<TypeTag>();
-  const [adminOnly, setAdminOnly] = useState(false);
   const [showInfoSection, setShowInfoSection] = useState(false);
   const [showWelcomeDialog, setShowWelcomeDialog] = useState(false);
+  
+  const handleNewPost = (content: string, topicTag: TopicTag, typeTag: TypeTag, images?: string[]) => {
+    onNewPost(content, topicTag, typeTag, images);
+    toast.success('Post sent for review', {
+      description: 'Your post will be visible once approved by admin',
+    });
+  };
   
   // Show welcome dialog for first-time cohort visits - only once
   useEffect(() => {
@@ -78,12 +85,6 @@ export function ChannelFeed({
         if (selectedType) return post.typeTag === selectedType;
         return true;
       })
-      .filter(post => {
-        if (adminOnly) {
-          return post.author.role === 'admin' || post.author.role === 'superadmin';
-        }
-        return true;
-      })
       .sort((a, b) => {
         // Pinned posts first
         if (a.isPinned && !b.isPinned) return -1;
@@ -91,7 +92,7 @@ export function ChannelFeed({
         // Then by date
         return b.createdAt.getTime() - a.createdAt.getTime();
       });
-  }, [posts, channel.id, selectedTopic, selectedType, adminOnly]);
+  }, [posts, channel.id, selectedTopic, selectedType]);
   
   return (
     <div className="h-full flex flex-col bg-background">
@@ -150,10 +151,10 @@ export function ChannelFeed({
           <FilterBar
             selectedTopic={selectedTopic}
             selectedType={selectedType}
-            adminOnly={adminOnly}
             onTopicChange={setSelectedTopic}
             onTypeChange={setSelectedType}
-            onAdminOnlyChange={setAdminOnly}
+            onCreatePost={() => setShowComposer(true)}
+            canCreatePost={!channel.isAdminOnly && isJoined}
           />
         </div>
       </div>
@@ -170,7 +171,7 @@ export function ChannelFeed({
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {showComposer && (
           <PostComposer
-            onSubmit={onNewPost}
+            onSubmit={handleNewPost}
             onClose={() => setShowComposer(false)}
           />
         )}
@@ -192,20 +193,6 @@ export function ChannelFeed({
           </div>
         )}
       </div>
-      
-      {/* FAB */}
-      {!channel.isAdminOnly && isJoined && (
-        <button
-          onClick={() => setShowComposer(true)}
-          className={cn(
-            'fixed bottom-6 right-6 w-14 h-14 rounded-2xl gradient-traya shadow-lg shadow-primary/30',
-            'flex items-center justify-center text-primary-foreground',
-            'hover:scale-105 active:scale-95 transition-transform'
-          )}
-        >
-          <Plus className="w-6 h-6" />
-        </button>
-      )}
     </div>
   );
 }
