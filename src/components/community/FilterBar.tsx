@@ -2,33 +2,32 @@ import { useState } from 'react';
 import { TopicTag, TypeTag } from '@/types/community';
 import { topicTagLabels, typeTagLabels } from '@/data/mockData';
 import { cn } from '@/lib/utils';
-import { Filter, X } from 'lucide-react';
+import { Filter, X, Plus } from 'lucide-react';
 
 interface FilterBarProps {
   selectedTopic?: TopicTag;
   selectedType?: TypeTag;
-  adminOnly: boolean;
   onTopicChange: (topic?: TopicTag) => void;
   onTypeChange: (type?: TypeTag) => void;
-  onAdminOnlyChange: (adminOnly: boolean) => void;
+  onCreatePost?: () => void;
+  canCreatePost?: boolean;
 }
 
 export function FilterBar({
   selectedTopic,
   selectedType,
-  adminOnly,
   onTopicChange,
   onTypeChange,
-  onAdminOnlyChange,
+  onCreatePost,
+  canCreatePost,
 }: FilterBarProps) {
   const [showFilters, setShowFilters] = useState(false);
   
-  const hasActiveFilters = selectedTopic || selectedType || adminOnly;
+  const hasActiveFilters = selectedTopic || selectedType;
   
   const clearFilters = () => {
     onTopicChange(undefined);
     onTypeChange(undefined);
-    onAdminOnlyChange(false);
   };
   
   return (
@@ -47,7 +46,7 @@ export function FilterBar({
           <span>Filters</span>
           {hasActiveFilters && (
             <span className="w-5 h-5 bg-primary-foreground/20 rounded-full flex items-center justify-center text-xs">
-              {[selectedTopic, selectedType, adminOnly].filter(Boolean).length}
+              {[selectedTopic, selectedType].filter(Boolean).length}
             </span>
           )}
         </button>
@@ -62,17 +61,18 @@ export function FilterBar({
           </button>
         )}
         
-        <button
-          onClick={() => onAdminOnlyChange(!adminOnly)}
-          className={cn(
-            'ml-auto px-3 py-2 rounded-xl text-sm font-medium transition-all',
-            adminOnly
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-          )}
-        >
-          Admin posts
-        </button>
+        {canCreatePost && (
+          <button
+            onClick={onCreatePost}
+            className={cn(
+              'ml-auto flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-all',
+              'bg-primary text-primary-foreground hover:bg-primary/90'
+            )}
+          >
+            <Plus className="w-4 h-4" />
+            <span>Create Post</span>
+          </button>
+        )}
       </div>
       
       {showFilters && (
