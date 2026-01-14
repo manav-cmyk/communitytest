@@ -19,7 +19,7 @@ import { LibraryPage } from '@/components/community/LibraryPage';
 import { NotificationsPage } from '@/components/community/NotificationsPage';
 import { cn } from '@/lib/utils';
 
-type View = 'channels' | 'feed' | 'post' | 'saved' | 'profile' | 'members' | 'notifications';
+type View = 'channels' | 'feed' | 'post' | 'saved' | 'profile' | 'members' | 'notifications' | 'library';
 type OnboardingStep = 'welcome' | 'join-dialog' | 'name-dialog' | 'complete';
 
 export default function Community() {
@@ -343,6 +343,7 @@ export default function Community() {
                 onLeaveChannel={() => handleLeaveChannel(activeChannel.id)}
                 visitedCohorts={visitedCohorts}
                 onCohortVisited={handleCohortVisited}
+                onNavigateToLibrary={() => setView('library')}
               />
             )}
 
@@ -496,6 +497,7 @@ export default function Community() {
                 onLeaveChannel={() => handleLeaveChannel(activeChannel.id)}
                 visitedCohorts={visitedCohorts}
                 onCohortVisited={handleCohortVisited}
+                onNavigateToLibrary={() => setView('library')}
               />
             ) : (
               <div className="h-full flex items-center justify-center">

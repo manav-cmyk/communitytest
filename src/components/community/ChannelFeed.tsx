@@ -3,10 +3,9 @@ import { Channel, Post, TopicTag, TypeTag } from '@/types/community';
 import { PostCard } from './PostCard';
 import { PostComposer } from './PostComposer';
 import { FilterBar } from './FilterBar';
-import { ChannelInfoSection } from './ChannelInfoSection';
 import { CohortWelcomeDialog } from './CohortWelcomeDialog';
 import { cn } from '@/lib/utils';
-import { Plus, ArrowLeft, Users, Info } from 'lucide-react';
+import { ArrowLeft, Users, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 interface ChannelFeedProps {
@@ -24,6 +23,7 @@ interface ChannelFeedProps {
   onLeaveChannel: () => void;
   visitedCohorts: Set<string>;
   onCohortVisited: (channelId: string) => void;
+  onNavigateToLibrary: () => void;
 }
 
 export function ChannelFeed({
@@ -41,11 +41,11 @@ export function ChannelFeed({
   onLeaveChannel,
   visitedCohorts,
   onCohortVisited,
+  onNavigateToLibrary,
 }: ChannelFeedProps) {
   const [showComposer, setShowComposer] = useState(false);
   const [selectedTopic, setSelectedTopic] = useState<TopicTag>();
   const [selectedType, setSelectedType] = useState<TypeTag>();
-  const [showInfoSection, setShowInfoSection] = useState(false);
   const [showWelcomeDialog, setShowWelcomeDialog] = useState(false);
   
   const handleNewPost = (content: string, topicTag: TopicTag, typeTag: TypeTag, images?: string[]) => {
@@ -126,12 +126,9 @@ export function ChannelFeed({
             {/* Info, Members & Join/Leave buttons */}
             <div className="flex items-center gap-1">
               <button
-                onClick={() => setShowInfoSection(!showInfoSection)}
-                className={cn(
-                  "p-2 rounded-xl transition-colors",
-                  showInfoSection ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground"
-                )}
-                title="Channel info"
+                onClick={onNavigateToLibrary}
+                className="p-2 rounded-xl hover:bg-muted text-muted-foreground transition-colors"
+                title="Getting Started"
               >
                 <Info className="w-5 h-5" />
               </button>
@@ -159,13 +156,6 @@ export function ChannelFeed({
         </div>
       </div>
       
-      {/* Info Section (Collapsible) */}
-      {showInfoSection && (
-        <ChannelInfoSection 
-          channelName={channel.name}
-          channelType={channel.type}
-        />
-      )}
       
       {/* Feed */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
