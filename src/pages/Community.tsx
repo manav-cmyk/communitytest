@@ -106,11 +106,9 @@ export default function Community() {
       return;
     }
     
-    // For topic channels, show join dialog if not joined
+    // Auto-join topic channels when selected
     if (channel.type === 'topic' && !joinedChannels.has(channel.id)) {
-      setPendingJoinChannel(channel);
-      setShowJoinChannelDialog(true);
-      return;
+      setJoinedChannels(prev => new Set([...prev, channel.id]));
     }
     
     setActiveChannel(channel);
@@ -324,7 +322,6 @@ export default function Community() {
                   activeChannelId={activeChannel?.id}
                   onChannelSelect={handleChannelSelect}
                   userGroups={currentUser.groups}
-                  onExitCommunity={() => setShowExitDialog(true)}
                   joinedChannels={joinedChannels}
                 />
               </>
@@ -392,6 +389,7 @@ export default function Community() {
                 posts={posts}
                 isCurrentUser={isViewingOwnProfile}
                 onBack={handleBack}
+                onExitCommunity={() => setShowExitDialog(true)}
               />
             )}
 
@@ -441,7 +439,6 @@ export default function Community() {
               activeChannelId={activeChannel?.id}
               onChannelSelect={handleChannelSelect}
               userGroups={currentUser.groups}
-              onExitCommunity={() => setShowExitDialog(true)}
               joinedChannels={joinedChannels}
             />
           </div>
@@ -469,6 +466,7 @@ export default function Community() {
                 posts={posts}
                 isCurrentUser={isViewingOwnProfile}
                 onBack={handleBack}
+                onExitCommunity={() => setShowExitDialog(true)}
               />
             ) : view === 'saved' ? (
               <SavedPosts
