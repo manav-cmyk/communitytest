@@ -1,16 +1,14 @@
 import { Channel } from '@/types/community';
 import { ChannelCard } from './ChannelCard';
 import { cn } from '@/lib/utils';
-import { Users, ChevronDown, LogOut } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
 
 interface ChannelSidebarProps {
   channels: Channel[];
   activeChannelId?: string;
   onChannelSelect: (channel: Channel) => void;
   userGroups: string[]; // Discourse-style group membership
-  onExitCommunity: () => void;
   joinedChannels: Set<string>;
 }
 
@@ -19,7 +17,6 @@ export function ChannelSidebar({
   activeChannelId, 
   onChannelSelect,
   userGroups,
-  onExitCommunity,
   joinedChannels 
 }: ChannelSidebarProps) {
   const [topicExpanded, setTopicExpanded] = useState(true);
@@ -80,18 +77,6 @@ export function ChannelSidebar({
             ))}
           </div>
         )}
-      </div>
-
-      {/* Exit Community Button */}
-      <div className="p-4 border-t border-sidebar-border mt-auto">
-        <Button
-          variant="ghost"
-          onClick={onExitCommunity}
-          className="w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-        >
-          <LogOut className="w-4 h-4 mr-2" />
-          Leave Community
-        </Button>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import { Author, User, Post, trustLevelLabels, TrustLevel } from '@/types/community';
 import { cn } from '@/lib/utils';
-import { ArrowLeft, Calendar, FileText, Shield, MessageSquare, Heart, Eye, Pencil, Camera, Check, X } from 'lucide-react';
+import { ArrowLeft, Calendar, FileText, Shield, MessageSquare, Heart, Eye, Pencil, Camera, Check, X, LogOut } from 'lucide-react';
 import { format } from 'date-fns';
 import { useState, useRef } from 'react';
 import { Input } from '@/components/ui/input';
@@ -15,6 +15,7 @@ interface UserProfileProps {
   memberSince?: Date;
   onBack: () => void;
   onUpdateProfile?: (name: string, photoUrl?: string) => void;
+  onExitCommunity?: () => void;
 }
 
 export function UserProfile({ 
@@ -25,7 +26,8 @@ export function UserProfile({
   isModerator = false,
   memberSince,
   onBack,
-  onUpdateProfile
+  onUpdateProfile,
+  onExitCommunity
 }: UserProfileProps) {
   const initialName = user?.name || author?.name || 'User';
   const [displayName, setDisplayName] = useState(initialName);
@@ -272,6 +274,20 @@ export function UserProfile({
               </div>
             )}
           </div>
+
+          {/* Leave Community - Only for current user */}
+          {isCurrentUser && onExitCommunity && (
+            <div className="mt-8 pt-6 border-t border-border/50">
+              <Button
+                variant="ghost"
+                onClick={onExitCommunity}
+                className="w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Leave Community
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>
