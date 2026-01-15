@@ -78,7 +78,7 @@ export function ChannelMembers({
             </h2>
           </div>
           <div className="space-y-2">
-            {regularMembers.map(member => (
+            {regularMembers.slice(0, 20).map(member => (
               <MemberCard
                 key={member.id}
                 member={member}
@@ -86,6 +86,11 @@ export function ChannelMembers({
               />
             ))}
           </div>
+          {regularMembers.length > 20 && (
+            <p className="text-sm text-muted-foreground text-center py-4">
+              ... ({regularMembers.length - 20} more members)
+            </p>
+          )}
           {regularMembers.length === 0 && (
             <p className="text-sm text-muted-foreground text-center py-4">
               No other members yet
