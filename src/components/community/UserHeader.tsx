@@ -13,19 +13,8 @@ interface UserHeaderProps {
 
 export function UserHeader({ user, onSavedPostsClick, onProfileClick, onNotificationsClick, onClose, savedPostsCount = 0 }: UserHeaderProps) {
   return (
-    <div className="bg-card border-b border-border/50 p-4 relative">
-      {/* Global close button - top right corner, smaller */}
-      {onClose && (
-        <button 
-          onClick={onClose}
-          className="absolute top-2 right-2 p-1.5 rounded-lg hover:bg-muted/80 transition-colors text-muted-foreground"
-          title="Close"
-        >
-          <X className="w-4 h-4" />
-        </button>
-      )}
-      
-      <div className="flex items-center justify-between pr-6">
+    <div className="bg-card border-b border-border/50 p-4">
+      <div className="flex items-center justify-between">
         <button 
           onClick={onProfileClick}
           className="flex items-center gap-3 hover:opacity-80 transition-opacity"
@@ -65,6 +54,15 @@ export function UserHeader({ user, onSavedPostsClick, onProfileClick, onNotifica
             <Bell className="w-5 h-5" />
             <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full" />
           </button>
+          {onClose && (
+            <button 
+              onClick={onClose}
+              className="p-2 rounded-xl hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+              title="Close"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
       </div>
     </div>
