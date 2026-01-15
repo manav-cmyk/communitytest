@@ -92,9 +92,19 @@ export function LibraryPage({ onBack, onClose }: LibraryPageProps) {
     : faqs;
 
   return (
-    <div className="h-full flex flex-col bg-background pb-20">
+    <div className="h-full flex flex-col bg-background pb-20 relative">
+      {/* Global Close Button - Top Right */}
+      {onClose && (
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-2 z-20 p-1.5 rounded-lg hover:bg-muted/80 transition-colors"
+        >
+          <X className="w-4 h-4 text-muted-foreground" />
+        </button>
+      )}
+      
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/50 p-4">
+      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/50 p-4 pr-10">
         <div className="flex items-center gap-3 mb-4">
           {onBack && (
             <button
@@ -111,14 +121,6 @@ export function LibraryPage({ onBack, onClose }: LibraryPageProps) {
             <h1 className="font-bold text-xl text-foreground">FAQ</h1>
             <p className="text-sm text-muted-foreground">Frequently asked questions</p>
           </div>
-          {onClose && (
-            <button
-              onClick={onClose}
-              className="p-2 rounded-xl hover:bg-muted transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          )}
         </div>
 
         {/* Category Filters */}
