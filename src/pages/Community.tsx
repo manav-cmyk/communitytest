@@ -146,6 +146,13 @@ export default function Community() {
     }
   }, [view, previousView]);
 
+  const handleCloseApp = useCallback(() => {
+    // Navigate back to main Traya app
+    console.log('Navigate back to Traya App');
+    // In production, this would redirect to the main app URL
+    // window.location.href = '/app';
+  }, []);
+
   const handleNotificationsClick = useCallback(() => {
     setPreviousView(view);
     setView('notifications');
@@ -315,6 +322,7 @@ export default function Community() {
                   onSavedPostsClick={handleSavedPostsClick}
                   onProfileClick={handleProfileClick}
                   onNotificationsClick={handleNotificationsClick}
+                  onClose={handleCloseApp}
                   savedPostsCount={savedPostsCount}
                 />
                 <ChannelSidebar
@@ -343,10 +351,7 @@ export default function Community() {
                 onLeaveChannel={() => handleLeaveChannel(activeChannel.id)}
                 visitedCohorts={visitedCohorts}
                 onCohortVisited={handleCohortVisited}
-                onNavigateToLibrary={() => {
-                  setPreviousView('feed');
-                  setView('library');
-                }}
+                onClose={handleCloseApp}
               />
             )}
 
@@ -398,11 +403,11 @@ export default function Community() {
             )}
 
             {view === 'notifications' && (
-              <NotificationsPage onBack={handleBack} />
+              <NotificationsPage onBack={handleBack} onClose={handleCloseApp} />
             )}
 
             {view === 'library' && (
-              <LibraryPage onBack={handleBack} />
+              <LibraryPage onBack={handleBack} onClose={handleCloseApp} />
             )}
           </>
         )}
@@ -421,9 +426,9 @@ export default function Community() {
           />
         )}
         
-        {/* Library Tab */}
-        {mobileTab === 'library' && (
-          <LibraryPage />
+        {/* FAQ Tab */}
+        {mobileTab === 'faq' && (
+          <LibraryPage onBack={() => setMobileTab('home')} />
         )}
         
         {/* Bottom Navigation */}
@@ -439,6 +444,7 @@ export default function Community() {
             onSavedPostsClick={handleSavedPostsClick}
             onProfileClick={handleProfileClick}
             onNotificationsClick={handleNotificationsClick}
+            onClose={handleCloseApp}
             savedPostsCount={savedPostsCount}
           />
           <div className="flex-1 overflow-hidden">
@@ -504,10 +510,6 @@ export default function Community() {
                 onLeaveChannel={() => handleLeaveChannel(activeChannel.id)}
                 visitedCohorts={visitedCohorts}
                 onCohortVisited={handleCohortVisited}
-                onNavigateToLibrary={() => {
-                  setPreviousView('feed');
-                  setView('library');
-                }}
               />
             ) : (
               <div className="h-full flex items-center justify-center">

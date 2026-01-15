@@ -1,16 +1,17 @@
 import { User, trustLevelLabels } from '@/types/community';
 import { cn } from '@/lib/utils';
-import { Bell, Bookmark, Shield } from 'lucide-react';
+import { Bell, Bookmark, Shield, X } from 'lucide-react';
 
 interface UserHeaderProps {
   user: User;
   onSavedPostsClick?: () => void;
   onProfileClick?: () => void;
   onNotificationsClick?: () => void;
+  onClose?: () => void;
   savedPostsCount?: number;
 }
 
-export function UserHeader({ user, onSavedPostsClick, onProfileClick, onNotificationsClick, savedPostsCount = 0 }: UserHeaderProps) {
+export function UserHeader({ user, onSavedPostsClick, onProfileClick, onNotificationsClick, onClose, savedPostsCount = 0 }: UserHeaderProps) {
   return (
     <div className="bg-card border-b border-border/50 p-4">
       <div className="flex items-center justify-between">
@@ -53,6 +54,15 @@ export function UserHeader({ user, onSavedPostsClick, onProfileClick, onNotifica
             <Bell className="w-5 h-5" />
             <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full" />
           </button>
+          {onClose && (
+            <button 
+              onClick={onClose}
+              className="p-2 rounded-xl hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+              title="Close"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
       </div>
     </div>
