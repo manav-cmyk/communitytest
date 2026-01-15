@@ -4,8 +4,9 @@ import { PostCard } from './PostCard';
 import { PostComposer } from './PostComposer';
 import { FilterBar } from './FilterBar';
 import { CohortWelcomeDialog } from './CohortWelcomeDialog';
+import { FAQDialog } from './FAQDialog';
 import { cn } from '@/lib/utils';
-import { ArrowLeft, Users, Info } from 'lucide-react';
+import { ArrowLeft, Users, Info, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 interface ChannelFeedProps {
@@ -23,7 +24,7 @@ interface ChannelFeedProps {
   onLeaveChannel: () => void;
   visitedCohorts: Set<string>;
   onCohortVisited: (channelId: string) => void;
-  onNavigateToLibrary: () => void;
+  onClose?: () => void;
 }
 
 export function ChannelFeed({
@@ -41,12 +42,13 @@ export function ChannelFeed({
   onLeaveChannel,
   visitedCohorts,
   onCohortVisited,
-  onNavigateToLibrary,
+  onClose,
 }: ChannelFeedProps) {
   const [showComposer, setShowComposer] = useState(false);
   const [selectedTopic, setSelectedTopic] = useState<TopicTag>();
   const [selectedType, setSelectedType] = useState<TypeTag>();
   const [showWelcomeDialog, setShowWelcomeDialog] = useState(false);
+  const [showFAQDialog, setShowFAQDialog] = useState(false);
   
   const handleNewPost = (content: string, topicTag: TopicTag, typeTag: TypeTag, images?: string[]) => {
     onNewPost(content, topicTag, typeTag, images);
@@ -96,6 +98,9 @@ export function ChannelFeed({
   
   return (
     <div className="h-full flex flex-col bg-background">
+      {/* FAQ Dialog */}
+      <FAQDialog open={showFAQDialog} onOpenChange={setShowFAQDialog} />
+      
       {/* Welcome Dialog for Cohort Channels */}
       <CohortWelcomeDialog
         open={showWelcomeDialog}
@@ -123,12 +128,12 @@ export function ChannelFeed({
               <p className="text-sm text-muted-foreground">{channel.description}</p>
             </div>
 
-            {/* Info, Members & Join/Leave buttons */}
+            {/* Info, Members & Close buttons */}
             <div className="flex items-center gap-1">
               <button
-                onClick={onNavigateToLibrary}
+                onClick={() => setShowFAQDialog(true)}
                 className="p-2 rounded-xl hover:bg-muted text-muted-foreground transition-colors"
-                title="Getting Started"
+                title="FAQ"
               >
                 <Info className="w-5 h-5" />
               </button>
@@ -141,6 +146,15 @@ export function ChannelFeed({
                 <Users className="w-5 h-5 text-muted-foreground" />
               </button>
               
+              {onClose && (
+                <button
+                  onClick={onClose}
+                  className="p-2 rounded-xl hover:bg-muted transition-colors"
+                  title="Close"
+                >
+                  <X className="w-5 h-5 text-muted-foreground" />
+                </button>
+              )}
             </div>
           </div>
           

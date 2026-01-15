@@ -1,7 +1,7 @@
-import { Home, Search, Library, ArrowUpRight } from 'lucide-react';
+import { Home, Search, HelpCircle, ArrowUpRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export type MobileTab = 'home' | 'search' | 'library';
+export type MobileTab = 'home' | 'search' | 'faq';
 
 interface BottomNavProps {
   activeTab: MobileTab;
@@ -13,7 +13,7 @@ export function BottomNav({ activeTab, onTabChange, onBackToApp }: BottomNavProp
   const tabs = [
     { id: 'home' as MobileTab, icon: Home, label: 'Home' },
     { id: 'search' as MobileTab, icon: Search, label: 'Search' },
-    { id: 'library' as MobileTab, icon: Library, label: 'Library' },
+    { id: 'faq' as MobileTab, icon: HelpCircle, label: 'FAQ' },
   ];
 
   const handleBackToApp = () => {

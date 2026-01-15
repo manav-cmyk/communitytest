@@ -1,6 +1,12 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, HelpCircle, ArrowLeft, X } from 'lucide-react';
+import { ChevronDown, ChevronUp, HelpCircle, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface FAQItem {
   id: string;
@@ -78,12 +84,12 @@ const faqs: FAQItem[] = [
 
 const categories = [...new Set(faqs.map(faq => faq.category))];
 
-interface LibraryPageProps {
-  onBack?: () => void;
-  onClose?: () => void;
+interface FAQDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-export function LibraryPage({ onBack, onClose }: LibraryPageProps) {
+export function FAQDialog({ open, onOpenChange }: FAQDialogProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -92,37 +98,22 @@ export function LibraryPage({ onBack, onClose }: LibraryPageProps) {
     : faqs;
 
   return (
-    <div className="h-full flex flex-col bg-background pb-20">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/50 p-4">
-        <div className="flex items-center gap-3 mb-4">
-          {onBack && (
-            <button
-              onClick={onBack}
-              className="p-2 -ml-2 rounded-xl hover:bg-muted transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-          )}
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-            <HelpCircle className="w-5 h-5 text-primary" />
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg max-h-[80vh] overflow-hidden flex flex-col p-0">
+        <DialogHeader className="p-4 pb-2 border-b border-border/50">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+              <HelpCircle className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <DialogTitle className="font-bold text-xl text-foreground">FAQ</DialogTitle>
+              <p className="text-sm text-muted-foreground">Frequently asked questions</p>
+            </div>
           </div>
-          <div className="flex-1">
-            <h1 className="font-bold text-xl text-foreground">FAQ</h1>
-            <p className="text-sm text-muted-foreground">Frequently asked questions</p>
-          </div>
-          {onClose && (
-            <button
-              onClick={onClose}
-              className="p-2 rounded-xl hover:bg-muted transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          )}
-        </div>
+        </DialogHeader>
 
         {/* Category Filters */}
-        <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+        <div className="flex gap-2 overflow-x-auto px-4 py-3 scrollbar-hide">
           <button
             onClick={() => setSelectedCategory(null)}
             className={cn(
@@ -149,39 +140,39 @@ export function LibraryPage({ onBack, onClose }: LibraryPageProps) {
             </button>
           ))}
         </div>
-      </div>
 
-      {/* FAQ List */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
-        {filteredFaqs.map(faq => (
-          <div
-            key={faq.id}
-            className="bg-card rounded-xl border border-border/50 overflow-hidden"
-          >
-            <button
-              onClick={() => setExpandedId(expandedId === faq.id ? null : faq.id)}
-              className="w-full flex items-center justify-between p-4 text-left"
+        {/* FAQ List */}
+        <div className="flex-1 overflow-y-auto p-4 pt-0 space-y-3">
+          {filteredFaqs.map(faq => (
+            <div
+              key={faq.id}
+              className="bg-muted/50 rounded-xl overflow-hidden"
             >
-              <span className="font-medium text-foreground pr-4">{faq.question}</span>
-              {expandedId === faq.id ? (
-                <ChevronUp className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-              ) : (
-                <ChevronDown className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+              <button
+                onClick={() => setExpandedId(expandedId === faq.id ? null : faq.id)}
+                className="w-full flex items-center justify-between p-4 text-left"
+              >
+                <span className="font-medium text-foreground pr-4 text-sm">{faq.question}</span>
+                {expandedId === faq.id ? (
+                  <ChevronUp className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                )}
+              </button>
+              {expandedId === faq.id && (
+                <div className="px-4 pb-4 animate-fade-in">
+                  <p className="text-muted-foreground text-sm leading-relaxed">
+                    {faq.answer}
+                  </p>
+                  <span className="inline-block mt-3 px-2 py-0.5 bg-secondary rounded text-xs text-muted-foreground">
+                    {faq.category}
+                  </span>
+                </div>
               )}
-            </button>
-            {expandedId === faq.id && (
-              <div className="px-4 pb-4 animate-fade-in">
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  {faq.answer}
-                </p>
-                <span className="inline-block mt-3 px-2 py-0.5 bg-secondary rounded text-xs text-muted-foreground">
-                  {faq.category}
-                </span>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
+            </div>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -1,4 +1,4 @@
-import { ArrowLeft, MessageCircle, Heart, AtSign, Bell } from 'lucide-react';
+import { ArrowLeft, MessageCircle, Heart, AtSign, Bell, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Notification {
@@ -12,6 +12,7 @@ interface Notification {
 
 interface NotificationsPageProps {
   onBack: () => void;
+  onClose?: () => void;
 }
 
 const mockNotifications: Notification[] = [
@@ -63,7 +64,7 @@ const notificationIcons = {
   mention: AtSign,
 };
 
-export function NotificationsPage({ onBack }: NotificationsPageProps) {
+export function NotificationsPage({ onBack, onClose }: NotificationsPageProps) {
   const unreadCount = mockNotifications.filter(n => !n.isRead).length;
 
   return (
@@ -86,6 +87,15 @@ export function NotificationsPage({ onBack }: NotificationsPageProps) {
           <button className="text-sm text-primary font-medium hover:underline">
             Mark all read
           </button>
+          {onClose && (
+            <button 
+              onClick={onClose}
+              className="p-2 rounded-xl hover:bg-muted transition-colors text-muted-foreground"
+              title="Close"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
       </div>
 
