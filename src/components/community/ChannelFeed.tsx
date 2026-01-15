@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { ArrowLeft, Users, Info, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+
 interface ChannelFeedProps {
   channel: Channel;
   posts: Post[];
@@ -97,7 +98,18 @@ export function ChannelFeed({
   }, [posts, channel.id, selectedTopic, selectedType]);
   
   return (
-    <div className="h-full flex flex-col bg-background">
+    <div className="h-full flex flex-col bg-background relative">
+      {/* Global close button - top right corner, smaller */}
+      {onClose && (
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-2 z-20 p-1.5 rounded-lg hover:bg-muted/80 transition-colors text-muted-foreground"
+          title="Close"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      )}
+      
       {/* FAQ Dialog */}
       <FAQDialog open={showFAQDialog} onOpenChange={setShowFAQDialog} />
       
@@ -111,7 +123,7 @@ export function ChannelFeed({
       
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/50">
-        <div className="p-4">
+        <div className="p-4 pr-10">
           <div className="flex items-center gap-3 mb-4">
             <button
               onClick={onBack}
@@ -128,12 +140,12 @@ export function ChannelFeed({
               <p className="text-sm text-muted-foreground">{channel.description}</p>
             </div>
 
-            {/* Info, Members & Close buttons */}
+            {/* Info & Members buttons */}
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setShowFAQDialog(true)}
                 className="p-2 rounded-xl hover:bg-muted text-muted-foreground transition-colors"
-                title="FAQ"
+                title="Info"
               >
                 <Info className="w-5 h-5" />
               </button>
@@ -145,16 +157,6 @@ export function ChannelFeed({
               >
                 <Users className="w-5 h-5 text-muted-foreground" />
               </button>
-              
-              {onClose && (
-                <button
-                  onClick={onClose}
-                  className="p-2 rounded-xl hover:bg-muted transition-colors"
-                  title="Close"
-                >
-                  <X className="w-5 h-5 text-muted-foreground" />
-                </button>
-              )}
             </div>
           </div>
           

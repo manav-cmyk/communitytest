@@ -68,10 +68,21 @@ export function NotificationsPage({ onBack, onClose }: NotificationsPageProps) {
   const unreadCount = mockNotifications.filter(n => !n.isRead).length;
 
   return (
-    <div className="h-full flex flex-col bg-background">
+    <div className="h-full flex flex-col bg-background relative">
+      {/* Global close button - top right corner, smaller */}
+      {onClose && (
+        <button 
+          onClick={onClose}
+          className="absolute top-2 right-2 z-20 p-1.5 rounded-lg hover:bg-muted/80 transition-colors text-muted-foreground"
+          title="Close"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      )}
+      
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background border-b border-border/50">
-        <div className="p-4 flex items-center gap-3">
+        <div className="p-4 pr-10 flex items-center gap-3">
           <button
             onClick={onBack}
             className="p-2 -ml-2 rounded-xl hover:bg-muted transition-colors"
@@ -87,15 +98,6 @@ export function NotificationsPage({ onBack, onClose }: NotificationsPageProps) {
           <button className="text-sm text-primary font-medium hover:underline">
             Mark all read
           </button>
-          {onClose && (
-            <button 
-              onClick={onClose}
-              className="p-2 rounded-xl hover:bg-muted transition-colors text-muted-foreground"
-              title="Close"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          )}
         </div>
       </div>
 
