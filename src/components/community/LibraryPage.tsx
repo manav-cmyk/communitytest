@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, HelpCircle, ArrowLeft, X } from 'lucide-react';
+import { ChevronDown, ChevronUp, Info, ArrowLeft, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface FAQItem {
@@ -115,11 +115,11 @@ export function LibraryPage({ onBack, onClose }: LibraryPageProps) {
             </button>
           )}
           <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-            <HelpCircle className="w-5 h-5 text-primary" />
+            <Info className="w-5 h-5 text-primary" />
           </div>
           <div className="flex-1">
-            <h1 className="font-bold text-xl text-foreground">FAQ</h1>
-            <p className="text-sm text-muted-foreground">Frequently asked questions</p>
+            <h1 className="font-bold text-xl text-foreground">Info</h1>
+            <p className="text-sm text-muted-foreground">How to use community?</p>
           </div>
         </div>
 
