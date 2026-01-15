@@ -1,8 +1,16 @@
+import { useState } from 'react';
 import { Post } from '@/types/community';
 import { topicTagLabels, typeTagLabels } from '@/data/mockData';
 import { cn } from '@/lib/utils';
-import { Heart, MessageCircle, Bookmark, Pin, Sparkles } from 'lucide-react';
+import { Heart, MessageCircle, Bookmark, Pin, Sparkles, MoreVertical, Trash2, Flag } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { toast } from 'sonner';
 
 interface PostCardProps {
   post: Post;
@@ -43,7 +51,7 @@ export function PostCard({ post, onClick, onLike, onBookmark, onAuthorClick }: P
         </button>
         
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <button 
               onClick={handleAuthorClick}
               className="font-semibold text-foreground hover:underline"
@@ -55,25 +63,58 @@ export function PostCard({ post, onClick, onLike, onBookmark, onAuthorClick }: P
                 {post.author.badge || 'Admin'}
               </span>
             )}
+            {/* Pinned/Featured badges inline with name */}
+            {post.isPinned && (
+              <span className="flex items-center gap-1 px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full">
+                <Pin className="w-3 h-3" />
+                Pinned
+              </span>
+            )}
+            {post.isFeatured && (
+              <span className="flex items-center gap-1 px-2 py-0.5 text-xs font-medium bg-warning/10 text-warning rounded-full">
+                <Sparkles className="w-3 h-3" />
+                Featured
+              </span>
+            )}
           </div>
           <span className="text-xs text-muted-foreground">
             {formatDistanceToNow(post.createdAt, { addSuffix: true })}
           </span>
         </div>
         
-        {/* Featured/Pinned badges */}
-        <div className="flex items-center gap-1">
-          {post.isPinned && (
-            <div className="p-1.5 rounded-lg bg-primary/10">
-              <Pin className="w-3.5 h-3.5 text-primary" />
-            </div>
-          )}
-          {post.isFeatured && (
-            <div className="p-1.5 rounded-lg bg-warning/10">
-              <Sparkles className="w-3.5 h-3.5 text-warning" />
-            </div>
-          )}
-        </div>
+        {/* Three-dot menu */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              onClick={(e) => e.stopPropagation()}
+              className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+            >
+              <MoreVertical className="w-4 h-4 text-muted-foreground" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-40 bg-popover">
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.stopPropagation();
+                toast.info('Post reported to moderators');
+              }}
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <Flag className="w-4 h-4" />
+              Report post
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.stopPropagation();
+                toast.info('Delete request sent for review');
+              }}
+              className="flex items-center gap-2 cursor-pointer text-destructive focus:text-destructive"
+            >
+              <Trash2 className="w-4 h-4" />
+              Delete post
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       
       {/* Content */}

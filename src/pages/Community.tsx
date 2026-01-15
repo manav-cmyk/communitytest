@@ -343,7 +343,10 @@ export default function Community() {
                 onLeaveChannel={() => handleLeaveChannel(activeChannel.id)}
                 visitedCohorts={visitedCohorts}
                 onCohortVisited={handleCohortVisited}
-                onNavigateToLibrary={() => setView('library')}
+                onNavigateToLibrary={() => {
+                  setPreviousView('feed');
+                  setView('library');
+                }}
               />
             )}
 
@@ -396,6 +399,10 @@ export default function Community() {
 
             {view === 'notifications' && (
               <NotificationsPage onBack={handleBack} />
+            )}
+
+            {view === 'library' && (
+              <LibraryPage onBack={handleBack} />
             )}
           </>
         )}
@@ -497,7 +504,10 @@ export default function Community() {
                 onLeaveChannel={() => handleLeaveChannel(activeChannel.id)}
                 visitedCohorts={visitedCohorts}
                 onCohortVisited={handleCohortVisited}
-                onNavigateToLibrary={() => setView('library')}
+                onNavigateToLibrary={() => {
+                  setPreviousView('feed');
+                  setView('library');
+                }}
               />
             ) : (
               <div className="h-full flex items-center justify-center">

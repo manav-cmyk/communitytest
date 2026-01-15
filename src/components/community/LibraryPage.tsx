@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, HelpCircle } from 'lucide-react';
+import { ChevronDown, ChevronUp, HelpCircle, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface FAQItem {
@@ -78,7 +78,11 @@ const faqs: FAQItem[] = [
 
 const categories = [...new Set(faqs.map(faq => faq.category))];
 
-export function LibraryPage() {
+interface LibraryPageProps {
+  onBack?: () => void;
+}
+
+export function LibraryPage({ onBack }: LibraryPageProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -91,6 +95,14 @@ export function LibraryPage() {
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/50 p-4">
         <div className="flex items-center gap-3 mb-4">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="p-2 -ml-2 rounded-xl hover:bg-muted transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+          )}
           <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
             <HelpCircle className="w-5 h-5 text-primary" />
           </div>
