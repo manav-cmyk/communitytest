@@ -28,9 +28,13 @@ export function PostComposer({ onSubmit, onClose }: PostComposerProps) {
   };
   
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-foreground text-lg">New Post</h3>
+        <div>
+          <h3 className="font-bold text-foreground text-lg">New Post</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">Share with your community</p>
+        </div>
         <button 
           onClick={onClose}
           className="p-2 rounded-full hover:bg-muted transition-colors"
@@ -39,26 +43,35 @@ export function PostComposer({ onSubmit, onClose }: PostComposerProps) {
         </button>
       </div>
 
-      <Textarea
-        placeholder="Type your questions & doubts here..."
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        className="min-h-[120px] resize-none border-0 bg-secondary/30 focus-visible:ring-1 focus-visible:ring-primary"
-      />
+      {/* Textarea with visible border */}
+      <div className="rounded-2xl border-2 border-border focus-within:border-primary transition-colors bg-background shadow-sm">
+        <Textarea
+          placeholder="Type your questions & doubts here..."
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          className="min-h-[130px] resize-none border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base placeholder:text-muted-foreground/60 px-4 pt-4"
+          autoFocus
+        />
+        <div className="px-4 pb-3 flex justify-end">
+          <span className={cn("text-xs", content.length > 400 ? "text-destructive" : "text-muted-foreground/50")}>
+            {content.length}/500
+          </span>
+        </div>
+      </div>
       
       {/* Topic Tags */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-muted-foreground">Topic</label>
+        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Topic</label>
         <div className="flex flex-wrap gap-2">
           {Object.entries(topicTagLabels).map(([key, { label }]) => (
             <button
               key={key}
               onClick={() => setTopicTag(key as TopicTag)}
               className={cn(
-                'px-3 py-1.5 text-sm font-medium rounded-full transition-all',
+                'px-3 py-1.5 text-sm font-medium rounded-full border transition-all',
                 topicTag === key
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                  ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                  : 'bg-background text-muted-foreground border-border hover:border-primary/50 hover:text-foreground'
               )}
             >
               {label}
@@ -69,7 +82,7 @@ export function PostComposer({ onSubmit, onClose }: PostComposerProps) {
       
       {/* Type Tags */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-muted-foreground">Type</label>
+        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Type</label>
         <div className="flex flex-wrap gap-2">
           {Object.entries(typeTagLabels)
             .filter(([key]) => key !== 'admin-posts')
@@ -78,10 +91,10 @@ export function PostComposer({ onSubmit, onClose }: PostComposerProps) {
                 key={key}
                 onClick={() => setTypeTag(key as TypeTag)}
                 className={cn(
-                  'px-3 py-1.5 text-sm font-medium rounded-full transition-all',
+                  'px-3 py-1.5 text-sm font-medium rounded-full border transition-all',
                   typeTag === key
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                    ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                    : 'bg-background text-muted-foreground border-border hover:border-primary/50 hover:text-foreground'
                 )}
               >
                 {label}
@@ -91,7 +104,7 @@ export function PostComposer({ onSubmit, onClose }: PostComposerProps) {
       </div>
       
       {/* Actions */}
-      <div className="flex items-center justify-between pt-2">
+      <div className="flex items-center justify-between pt-1 border-t border-border/60">
         <button className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary rounded-lg transition-colors">
           <Image className="w-4 h-4" />
           <span>Add Photo</span>
@@ -100,7 +113,7 @@ export function PostComposer({ onSubmit, onClose }: PostComposerProps) {
         <Button 
           onClick={handleSubmit}
           disabled={!content.trim()}
-          className="gap-2"
+          className="gap-2 rounded-xl px-5"
         >
           <Send className="w-4 h-4" />
           Post
