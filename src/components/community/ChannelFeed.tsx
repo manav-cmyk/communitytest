@@ -154,10 +154,12 @@ export function ChannelFeed({
         <div className="px-4 pt-3 pb-1">
           <button
             onClick={() => setShowComposer(true)}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-secondary/40 border border-border/50 hover:bg-secondary/60 transition-colors text-left"
+            className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-background border-2 border-border hover:border-primary/50 hover:bg-secondary/20 transition-all shadow-sm text-left group"
           >
-            <PenLine className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-            <span className="text-sm text-muted-foreground">Type your questions & doubts here...</span>
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <PenLine className="w-4 h-4 text-primary" />
+            </div>
+            <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">Type your questions & doubts here...</span>
           </button>
         </div>
       )}
