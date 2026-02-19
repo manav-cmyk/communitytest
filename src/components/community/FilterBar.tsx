@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { TopicTag, TypeTag } from '@/types/community';
 import { topicTagLabels, typeTagLabels } from '@/data/mockData';
 import { cn } from '@/lib/utils';
-import { Filter, X, Plus } from 'lucide-react';
+import { Filter, X } from 'lucide-react';
 
 interface FilterBarProps {
   selectedTopic?: TopicTag;
@@ -61,18 +61,6 @@ export function FilterBar({
           </button>
         )}
         
-        {canCreatePost && (
-          <button
-            onClick={onCreatePost}
-            className={cn(
-              'ml-auto flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-all',
-              'bg-primary text-primary-foreground hover:bg-primary/90'
-            )}
-          >
-            <Plus className="w-4 h-4" />
-            <span>Create Post</span>
-          </button>
-        )}
       </div>
       
       {showFilters && (

@@ -28,9 +28,9 @@ export function PostComposer({ onSubmit, onClose }: PostComposerProps) {
   };
   
   return (
-    <div className="bg-card rounded-2xl shadow-lg border border-border/50 overflow-hidden animate-scale-in">
-      <div className="flex items-center justify-between p-4 border-b border-border/50">
-        <h3 className="font-semibold text-foreground">Create Post</h3>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="font-semibold text-foreground text-lg">New Post</h3>
         <button 
           onClick={onClose}
           className="p-2 rounded-full hover:bg-muted transition-colors"
@@ -38,26 +38,48 @@ export function PostComposer({ onSubmit, onClose }: PostComposerProps) {
           <X className="w-5 h-5 text-muted-foreground" />
         </button>
       </div>
+
+      <Textarea
+        placeholder="Type your questions & doubts here..."
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        className="min-h-[120px] resize-none border-0 bg-secondary/30 focus-visible:ring-1 focus-visible:ring-primary"
+      />
       
-      <div className="p-4 space-y-4">
-        <Textarea
-          placeholder="Write your question or update..."
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          className="min-h-[120px] resize-none border-0 bg-secondary/30 focus-visible:ring-1 focus-visible:ring-primary"
-        />
-        
-        {/* Topic Tags */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-muted-foreground">Topic</label>
-          <div className="flex flex-wrap gap-2">
-            {Object.entries(topicTagLabels).map(([key, { label }]) => (
+      {/* Topic Tags */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-muted-foreground">Topic</label>
+        <div className="flex flex-wrap gap-2">
+          {Object.entries(topicTagLabels).map(([key, { label }]) => (
+            <button
+              key={key}
+              onClick={() => setTopicTag(key as TopicTag)}
+              className={cn(
+                'px-3 py-1.5 text-sm font-medium rounded-full transition-all',
+                topicTag === key
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+              )}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+      
+      {/* Type Tags */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-muted-foreground">Type</label>
+        <div className="flex flex-wrap gap-2">
+          {Object.entries(typeTagLabels)
+            .filter(([key]) => key !== 'admin-posts')
+            .map(([key, { label }]) => (
               <button
                 key={key}
-                onClick={() => setTopicTag(key as TopicTag)}
+                onClick={() => setTypeTag(key as TypeTag)}
                 className={cn(
                   'px-3 py-1.5 text-sm font-medium rounded-full transition-all',
-                  topicTag === key
+                  typeTag === key
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
                 )}
@@ -65,48 +87,24 @@ export function PostComposer({ onSubmit, onClose }: PostComposerProps) {
                 {label}
               </button>
             ))}
-          </div>
         </div>
+      </div>
+      
+      {/* Actions */}
+      <div className="flex items-center justify-between pt-2">
+        <button className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary rounded-lg transition-colors">
+          <Image className="w-4 h-4" />
+          <span>Add Photo</span>
+        </button>
         
-        {/* Type Tags */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-muted-foreground">Type</label>
-          <div className="flex flex-wrap gap-2">
-            {Object.entries(typeTagLabels)
-              .filter(([key]) => key !== 'admin-posts')
-              .map(([key, { label }]) => (
-                <button
-                  key={key}
-                  onClick={() => setTypeTag(key as TypeTag)}
-                  className={cn(
-                    'px-3 py-1.5 text-sm font-medium rounded-full transition-all',
-                    typeTag === key
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                  )}
-                >
-                  {label}
-                </button>
-              ))}
-          </div>
-        </div>
-        
-        {/* Actions */}
-        <div className="flex items-center justify-between pt-2">
-          <button className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary rounded-lg transition-colors">
-            <Image className="w-4 h-4" />
-            <span>Add Photo</span>
-          </button>
-          
-          <Button 
-            onClick={handleSubmit}
-            disabled={!content.trim()}
-            className="gap-2"
-          >
-            <Send className="w-4 h-4" />
-            Post
-          </Button>
-        </div>
+        <Button 
+          onClick={handleSubmit}
+          disabled={!content.trim()}
+          className="gap-2"
+        >
+          <Send className="w-4 h-4" />
+          Post
+        </Button>
       </div>
     </div>
   );

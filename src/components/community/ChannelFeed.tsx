@@ -6,8 +6,9 @@ import { FilterBar } from './FilterBar';
 import { CohortWelcomeDialog } from './CohortWelcomeDialog';
 import { FAQDialog } from './FAQDialog';
 import { cn } from '@/lib/utils';
-import { ArrowLeft, X } from 'lucide-react';
+import { ArrowLeft, X, PenLine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Drawer, DrawerContent } from '@/components/ui/drawer';
 import { toast } from 'sonner';
 interface ChannelFeedProps {
   channel: Channel;
@@ -148,16 +149,31 @@ export function ChannelFeed({
         </div>
       </div>
       
-      
-      {/* Feed */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {showComposer && (
+      {/* Facebook-style post prompt bar */}
+      {!channel.isAdminOnly && isJoined && (
+        <div className="px-4 pt-3 pb-1">
+          <button
+            onClick={() => setShowComposer(true)}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-secondary/40 border border-border/50 hover:bg-secondary/60 transition-colors text-left"
+          >
+            <PenLine className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+            <span className="text-sm text-muted-foreground">Type your questions & doubts here...</span>
+          </button>
+        </div>
+      )}
+
+      {/* Bottom sheet composer */}
+      <Drawer open={showComposer} onOpenChange={setShowComposer}>
+        <DrawerContent className="px-4 pb-8 pt-2 max-h-[90vh]">
           <PostComposer
             onSubmit={handleNewPost}
             onClose={() => setShowComposer(false)}
           />
-        )}
-        
+        </DrawerContent>
+      </Drawer>
+      
+      {/* Feed */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {filteredPosts.map(post => (
           <PostCard
             key={post.id}
